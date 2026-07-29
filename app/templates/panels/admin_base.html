@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Admin · {{ tenant.name }}{% endblock %}
+{% block body %}
+<div class="panel-shell">
+  <aside class="side">
+    <h2>{{ tenant.name }}</h2>
+    <nav>
+      <a href="/admin" class="{% if active == 'dashboard' %}active{% endif %}">Dashboard</a>
+      <a href="/admin/website" class="{% if active == 'website' %}active{% endif %}">Website &amp; Images</a>
+      <a href="/admin/gallery" class="{% if active == 'gallery' %}active{% endif %}">Gallery</a>
+      <a href="/admin/contact" class="{% if active == 'contact' %}active{% endif %}">Contact</a>
+      <a href="/site/{{ tenant.slug }}" target="_blank">View public site</a>
+      <a href="/logout">Logout</a>
+    </nav>
+  </aside>
+  <main class="panel-main">
+    {% block panel %}{% endblock %}
+  </main>
+</div>
+{% endblock %}

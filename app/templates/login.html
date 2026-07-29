@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Login · {{ app_name }}{% endblock %}
+{% block body %}
+<div class="auth-page">
+  <form class="auth-card" method="post" action="/login">
+    <h1>{{ app_name }}</h1>
+    <p>Sign in to your school portal</p>
+    {% if error %}<div class="alert">{{ error }}</div>{% endif %}
+    <div class="field">
+      <label for="tenant_slug">School / Institution</label>
+      <select id="tenant_slug" name="tenant_slug">
+        <option value="">Platform Super Admin</option>
+        {% for t in tenants %}
+        <option value="{{ t.slug }}">{{ t.name }} ({{ t.slug }})</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="field">
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" required autocomplete="username" />
+    </div>
+    <div class="field">
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" required autocomplete="current-password" />
+    </div>
+    <button class="btn btn-dark" type="submit" style="width:100%">Sign in</button>
+    <p class="muted" style="margin-top:1rem;font-size:0.85rem;text-align:center">
+      Demo: admin@greenfield.edu / admin123 · school: greenfield
+    </p>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}{{ app_name }}{% endblock %}
+{% block body %}
+<div class="auth-page">
+  <div class="auth-card" style="width:min(100%,560px)">
+    <h1>{{ app_name }}</h1>
+    <p>Multi-tenant SaaS for schools, colleges, and universities — custom domains, role panels, and a dynamic public website.</p>
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
+      <a class="btn btn-dark" href="/login">Portal login</a>
+      <a class="btn btn-outline" href="/site/greenfield">View demo school site</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

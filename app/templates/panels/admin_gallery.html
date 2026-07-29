@@ -1,0 +1,60 @@
+{% extends "panels/admin_base.html" %}
+{% block panel %}
+<h1>Gallery</h1>
+<p class="muted">Upload campus photos shown on the public website.</p>
+<div id="msg"></div>
+
+<form class="form-panel" id="gallery-form">
+  <div class="form-row">
+    <div class="field">
+      <label>Title</label>
+      <input name="title" />
+    </div>
+    <div class="field">
+      <label>Caption</label>
+      <input name="caption" />
+    </div>
+  </div>
+  <div class="field">
+    <label>Image</label>
+    <input type="file" name="file" accept="image/*" required />
+  </div>
+  <button class="btn btn-dark" type="submit">Add to gallery</button>
+</form>
+
+<div class="thumb-grid">
+  {% for item in gallery %}
+  <div class="thumb" data-id="{{ item.id }}">
+    <img src="{{ item.image_path }}" alt="{{ item.title or 'Gallery' }}" />
+    <div class="meta">
+      <div>{{ item.title or 'Untitled' }}</div>
+      <button class="btn btn-outline" style="margin-top:0.5rem;padding:0.4rem 0.75rem;font-size:0.8rem" type="button" onclick="removeImage({{ item.id }})">Delete</button>
+    </div>
+  </div>
+  {% else %}
+  <p class="muted">No gallery images yet.</p>
+  {% endfor %}
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function flash(text, ok=true) {
+  const el = document.getElementById('msg');
+  el.className = ok ? 'alert alert-ok' : 'alert';
+  el.textContent = text;
+}
+document.getElementById('gallery-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const res = await fetch('/api/admin/gallery', { method: 'POST', body: fd });
+  if (res.ok) location.reload();
+  else flash('Upload failed.', false);
+});
+async function removeImage(id) {
+  if (!confirm('Delete this image?')) return;
+  const res = await fetch('/api/admin/gallery/' + id, { method: 'DELETE' });
+  if (res.ok) location.reload();
+  else flash('Delete failed.', false);
+}
+</script>
+{% endblock %}
