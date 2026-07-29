@@ -1,0 +1,99 @@
+{% extends "panels/admin_base.html" %}
+{% block panel %}
+<h1>Contact panel</h1>
+<p class="muted">These details appear on the public school website contact section.</p>
+<div id="msg"></div>
+
+<form class="form-panel" id="contact-form">
+  <div class="form-row">
+    <div class="field">
+      <label>Address line 1</label>
+      <input name="address_line1" value="{{ contact.address_line1 or '' if contact else '' }}" />
+    </div>
+    <div class="field">
+      <label>Address line 2</label>
+      <input name="address_line2" value="{{ contact.address_line2 or '' if contact else '' }}" />
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="field">
+      <label>City</label>
+      <input name="city" value="{{ contact.city or '' if contact else '' }}" />
+    </div>
+    <div class="field">
+      <label>State</label>
+      <input name="state" value="{{ contact.state or '' if contact else '' }}" />
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="field">
+      <label>Pincode</label>
+      <input name="pincode" value="{{ contact.pincode or '' if contact else '' }}" />
+    </div>
+    <div class="field">
+      <label>Country</label>
+      <input name="country" value="{{ contact.country if contact else 'India' }}" />
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="field">
+      <label>Primary phone</label>
+      <input name="phone_primary" value="{{ contact.phone_primary or '' if contact else '' }}" />
+    </div>
+    <div class="field">
+      <label>Secondary phone</label>
+      <input name="phone_secondary" value="{{ contact.phone_secondary or '' if contact else '' }}" />
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="field">
+      <label>Email</label>
+      <input name="email" type="email" value="{{ contact.email or '' if contact else '' }}" />
+    </div>
+    <div class="field">
+      <label>Admissions email</label>
+      <input name="email_admissions" type="email" value="{{ contact.email_admissions or '' if contact else '' }}" />
+    </div>
+  </div>
+  <div class="field">
+    <label>Working hours</label>
+    <input name="working_hours" value="{{ contact.working_hours or '' if contact else '' }}" placeholder="Mon–Sat 9:00 AM – 4:00 PM" />
+  </div>
+  <div class="field">
+    <label>Map embed URL</label>
+    <input name="map_embed_url" value="{{ contact.map_embed_url or '' if contact else '' }}" placeholder="https://www.google.com/maps/embed?..." />
+  </div>
+  <div class="form-row">
+    <div class="field">
+      <label>Facebook URL</label>
+      <input name="facebook_url" value="{{ contact.facebook_url or '' if contact else '' }}" />
+    </div>
+    <div class="field">
+      <label>Instagram URL</label>
+      <input name="instagram_url" value="{{ contact.instagram_url or '' if contact else '' }}" />
+    </div>
+  </div>
+  <div class="field">
+    <label>YouTube URL</label>
+    <input name="youtube_url" value="{{ contact.youtube_url or '' if contact else '' }}" />
+  </div>
+  <button class="btn btn-dark" type="submit">Save contact</button>
+</form>
+{% endblock %}
+{% block scripts %}
+<script>
+document.getElementById('contact-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const body = Object.fromEntries([...fd.entries()].map(([k,v]) => [k, v === '' ? null : v]));
+  const res = await fetch('/api/admin/contact', {
+    method: 'PATCH',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(body)
+  });
+  const el = document.getElementById('msg');
+  el.className = res.ok ? 'alert alert-ok' : 'alert';
+  el.textContent = res.ok ? 'Contact details saved.' : 'Save failed.';
+});
+</script>
+{% endblock %}

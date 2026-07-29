@@ -1,0 +1,106 @@
+{% extends "panels/admin_base.html" %}
+{% block panel %}
+<h1>Website &amp; Images</h1>
+<p class="muted">Hero text, about copy, and main images power the public school site.</p>
+
+<div id="msg"></div>
+
+<form class="form-panel" id="website-form">
+  <h3 style="margin-top:0">Hero &amp; About</h3>
+  <div class="form-row">
+    <div class="field">
+      <label>Hero title</label>
+      <input name="hero_title" value="{{ website.hero_title or '' }}" />
+    </div>
+    <div class="field">
+      <label>CTA text</label>
+      <input name="hero_cta_text" value="{{ website.hero_cta_text or 'Contact Us' }}" />
+    </div>
+  </div>
+  <div class="field">
+    <label>Hero subtitle</label>
+    <textarea name="hero_subtitle" rows="2">{{ website.hero_subtitle or '' }}</textarea>
+  </div>
+  <div class="form-row">
+    <div class="field">
+      <label>About heading</label>
+      <input name="about_heading" value="{{ website.about_heading or '' }}" />
+    </div>
+    <div class="field">
+      <label>Gallery heading</label>
+      <input name="gallery_heading" value="{{ website.gallery_heading or 'Campus Life' }}" />
+    </div>
+  </div>
+  <div class="field">
+    <label>About body</label>
+    <textarea name="about_body" rows="5">{{ website.about_body or '' }}</textarea>
+  </div>
+  <div class="field">
+    <label>Gallery subtitle</label>
+    <input name="gallery_subtitle" value="{{ website.gallery_subtitle or '' }}" />
+  </div>
+  <button class="btn btn-dark" type="submit">Save website content</button>
+</form>
+
+<div class="form-row">
+  <form class="form-panel" id="hero-upload">
+    <h3 style="margin-top:0">Hero image</h3>
+    <p class="muted">Full-bleed background for the homepage.</p>
+    <input type="file" name="file" accept="image/*" required />
+    {% if website and website.hero_image_path %}
+    <div class="preview"><img src="{{ website.hero_image_path }}" alt="Hero" /></div>
+    {% endif %}
+    <button class="btn btn-dark" type="submit" style="margin-top:0.75rem">Upload hero</button>
+  </form>
+  <form class="form-panel" id="about-upload">
+    <h3 style="margin-top:0">About image</h3>
+    <p class="muted">Visual for the about section.</p>
+    <input type="file" name="file" accept="image/*" required />
+    {% if website and website.about_image_path %}
+    <div class="preview"><img src="{{ website.about_image_path }}" alt="About" /></div>
+    {% endif %}
+    <button class="btn btn-dark" type="submit" style="margin-top:0.75rem">Upload about</button>
+  </form>
+</div>
+
+<form class="form-panel" id="logo-upload">
+  <h3 style="margin-top:0">School logo</h3>
+  <input type="file" name="file" accept="image/*" required />
+  {% if tenant.logo_path %}
+  <div class="preview" style="max-width:120px;max-height:120px"><img src="{{ tenant.logo_path }}" alt="Logo" style="height:120px;object-fit:contain" /></div>
+  {% endif %}
+  <button class="btn btn-dark" type="submit" style="margin-top:0.75rem">Upload logo</button>
+</form>
+{% endblock %}
+{% block scripts %}
+<script>
+function flash(text, ok=true) {
+  const el = document.getElementById('msg');
+  el.className = ok ? 'alert alert-ok' : 'alert';
+  el.textContent = text;
+}
+document.getElementById('website-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const body = Object.fromEntries(fd.entries());
+  const res = await fetch('/api/admin/website', {
+    method: 'PATCH',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(body)
+  });
+  flash(res.ok ? 'Website content saved.' : 'Save failed.', res.ok);
+});
+async function upload(formId, url) {
+  document.getElementById(formId).addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const res = await fetch(url, { method: 'POST', body: fd });
+    if (res.ok) { flash('Image uploaded.'); location.reload(); }
+    else { flash('Upload failed.', false); }
+  });
+}
+upload('hero-upload', '/api/admin/website/hero-image');
+upload('about-upload', '/api/admin/website/about-image');
+upload('logo-upload', '/api/admin/tenant/logo');
+</script>
+{% endblock %}

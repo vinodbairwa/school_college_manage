@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Super Admin · {{ app_name }}{% endblock %}
+{% block body %}
+<div class="panel-shell">
+  <aside class="side">
+    <h2>Super Admin</h2>
+    <nav>
+      <a class="active" href="/super-admin">Tenants</a>
+      <a href="/logout">Logout</a>
+    </nav>
+  </aside>
+  <main class="panel-main">
+    <h1>All institutions</h1>
+    <p class="muted">Create schools / colleges / universities and assign custom domains.</p>
+    <div id="msg"></div>
+
+    <form class="form-panel" id="create-tenant">
+      <h3 style="margin-top:0">Add tenant</h3>
+      <div class="form-row">
+        <div class="field"><label>Name</label><input name="name" required /></div>
+        <div class="field"><label>Slug</label><input name="slug" required pattern="[a-z0-9-]+" placeholder="greenfield" /></div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label>Type</label>
+          <select name="institution_type">
+            <option value="school">School</option>
+            <option value="college">College</option>
+            <option value="university">University</option>
+          </select>
+        </div>
+        <div class="field"><label>Custom domain</label><input name="custom_domain" placeholder="www.myschool.com" /></div>
+      </div>
+      <div class="field"><label>Tagline</label><input name="tagline" /></div>
+      <div class="form-row">
+        <div class="field"><label>Admin name</label><input name="admin_name" required /></div>
+        <div class="field"><label>Admin email</label><input name="admin_email" type="email" required /></div>
+      </div>
+      <div class="field"><label>Admin password</label><input name="admin_password" type="password" required minlength="6" /></div>
+      <button class="btn btn-dark" type="submit">Create tenant</button>
+    </form>
+
+    <table class="table">
+      <thead>
+        <tr><th>Name</th><th>Slug</th><th>Type</th><th>Domain</th><th>Site</th></tr>
+      </thead>
+      <tbody>
+        {% for t in tenants %}
+        <tr>
+          <td>{{ t.name }}</td>
+          <td><span class="badge">{{ t.slug }}</span></td>
+          <td>{{ t.institution_type.value }}</td>
+          <td>{{ t.custom_domain or '—' }}</td>
+          <td><a href="/site/{{ t.slug }}">Open</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </main>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.getElementById('create-tenant').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const body = Object.fromEntries(fd.entries());
+  if (!body.custom_domain) body.custom_domain = null;
+  const res = await fetch('/api/super-admin/tenants', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(body)
+  });
+  const el = document.getElementById('msg');
+  if (res.ok) { el.className = 'alert alert-ok'; el.textContent = 'Tenant created.'; location.reload(); }
+  else {
+    const err = await res.json().catch(() => ({}));
+    el.className = 'alert';
+    el.textContent = err.detail || 'Create failed.';
+  }
+});
+</script>
+{% endblock %}

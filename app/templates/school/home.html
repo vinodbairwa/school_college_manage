@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% block title %}{{ tenant.name }}{% endblock %}
+{% block head %}
+<style>
+  :root {
+    --deep: {{ tenant.primary_color or '#0b3d44' }};
+    --deep-2: {{ tenant.primary_color or '#136066' }};
+    --accent: {{ tenant.accent_color or '#d4a017' }};
+  }
+  {% if website and website.hero_image_path %}
+  .hero-media { --hero-image: url('{{ website.hero_image_path }}'); }
+  {% endif %}
+  {% if website and website.about_image_path %}
+  .about-visual { --about-image: url('{{ website.about_image_path }}'); }
+  {% endif %}
+</style>
+{% endblock %}
+{% block body %}
+<header class="hero">
+  <div class="hero-media"></div>
+  <div class="hero-pattern"></div>
+  <div class="container site-nav">
+    <a class="brand" href="/site/{{ tenant.slug }}">
+      {% if tenant.logo_path %}<img src="{{ tenant.logo_path }}" alt="{{ tenant.name }} logo" />{% endif %}
+      <span>{{ tenant.name }}</span>
+    </a>
+    <nav class="nav-links">
+      <a class="hide-sm" href="#about">About</a>
+      <a class="hide-sm" href="#gallery">Gallery</a>
+      <a class="hide-sm" href="#contact">Contact</a>
+      <a class="btn btn-ghost" href="/login">Portal login</a>
+    </nav>
+  </div>
+  <div class="hero-copy">
+    <p class="hero-brand">{{ tenant.name }}</p>
+    {% if website and website.hero_title %}
+    <h1 class="hero-title">{{ website.hero_title }}</h1>
+    {% elif tenant.tagline %}
+    <h1 class="hero-title">{{ tenant.tagline }}</h1>
+    {% endif %}
+    <p class="hero-sub">
+      {% if website and website.hero_subtitle %}
+        {{ website.hero_subtitle }}
+      {% else %}
+        A place where curiosity meets craft — learning shaped for every student.
+      {% endif %}
+    </p>
+    <div class="hero-actions">
+      <a class="btn" href="{{ website.hero_cta_link if website else '#contact' }}">
+        {{ website.hero_cta_text if website else 'Contact Us' }}
+      </a>
+      <a class="btn btn-ghost" href="#about">Discover more</a>
+    </div>
+  </div>
+</header>
+
+<section class="block" id="about">
+  <div class="container about-grid">
+    <div>
+      <p class="section-kicker">Our story</p>
+      <h2 class="section-title">{{ website.about_heading if website and website.about_heading else 'About ' + tenant.name }}</h2>
+      <p class="about-body">{{ website.about_body if website and website.about_body else (tenant.about or 'Update your about section from the admin website panel.') }}</p>
+    </div>
+    <div class="about-visual" role="img" aria-label="Campus visual"></div>
+  </div>
+</section>
+
+<section class="block" id="gallery" style="padding-top:0">
+  <div class="container">
+    <p class="section-kicker">Moments</p>
+    <h2 class="section-title">{{ website.gallery_heading if website else 'Campus Life' }}</h2>
+    {% if website and website.gallery_subtitle %}
+    <p class="section-lead">{{ website.gallery_subtitle }}</p>
+    {% endif %}
+    {% if gallery %}
+    <div class="gallery-strip">
+      {% for item in gallery %}
+      <figure class="gallery-item" style="animation-delay: {{ loop.index0 * 0.08 }}s">
+        <img src="{{ item.image_path }}" alt="{{ item.title or 'Gallery image' }}" loading="lazy" />
+        {% if item.title or item.caption %}
+        <figcaption>{{ item.title or item.caption }}</figcaption>
+        {% endif %}
+      </figure>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="section-lead" style="margin-top:1rem">Gallery images uploaded from the admin panel will appear here.</p>
+    {% endif %}
+  </div>
+</section>
+
+<section class="block" id="contact">
+  <div class="container contact-wrap">
+    <div>
+      <p class="section-kicker">Reach us</p>
+      <h2 class="section-title">Contact</h2>
+      <p class="section-lead">Admissions, visits, and everyday questions — we are here to help.</p>
+      <ul class="contact-list">
+        <li>
+          <strong>Address</strong>
+          <span>
+            {% if contact %}
+              {{ contact.address_line1 or '' }}{% if contact.address_line2 %}, {{ contact.address_line2 }}{% endif %}<br />
+              {{ contact.city or '' }}{% if contact.state %}, {{ contact.state }}{% endif %} {{ contact.pincode or '' }}
+            {% else %}
+              Update address from Contact panel
+            {% endif %}
+          </span>
+        </li>
+        <li>
+          <strong>Phone</strong>
+          <span>{{ contact.phone_primary if contact and contact.phone_primary else '—' }}{% if contact and contact.phone_secondary %} · {{ contact.phone_secondary }}{% endif %}</span>
+        </li>
+        <li>
+          <strong>Email</strong>
+          <span>{{ contact.email if contact and contact.email else '—' }}{% if contact and contact.email_admissions %}<br />Admissions: {{ contact.email_admissions }}{% endif %}</span>
+        </li>
+        {% if contact and contact.working_hours %}
+        <li>
+          <strong>Hours</strong>
+          <span>{{ contact.working_hours }}</span>
+        </li>
+        {% endif %}
+      </ul>
+      {% if contact %}
+      <div class="socials">
+        {% if contact.facebook_url %}<a href="{{ contact.facebook_url }}" target="_blank" rel="noopener">Facebook</a>{% endif %}
+        {% if contact.instagram_url %}<a href="{{ contact.instagram_url }}" target="_blank" rel="noopener">Instagram</a>{% endif %}
+        {% if contact.youtube_url %}<a href="{{ contact.youtube_url }}" target="_blank" rel="noopener">YouTube</a>{% endif %}
+      </div>
+      {% endif %}
+    </div>
+    <div class="contact-panel">
+      <p class="section-kicker">Visit</p>
+      <h3 class="section-title" style="font-size:1.5rem">Campus desk</h3>
+      <p class="section-lead">Prefer walking in? Our front office can guide parents and new families.</p>
+      {% if contact and contact.map_embed_url %}
+      <div style="margin-top:1rem;border-radius:16px;overflow:hidden;aspect-ratio:16/10;background:#d7e3de">
+        <iframe src="{{ contact.map_embed_url }}" width="100%" height="100%" style="border:0;min-height:220px" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+      {% else %}
+      <p class="muted" style="margin-top:1rem">Add a Google Maps embed URL from the Contact panel to show a map here.</p>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container">
+    © {{ tenant.name }} · Powered by EduNest SaaS
+  </div>
+</footer>
+{% endblock %}

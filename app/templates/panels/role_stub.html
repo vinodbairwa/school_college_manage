@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}{{ panel_title }}{% endblock %}
+{% block body %}
+<div class="auth-page">
+  <div class="auth-card" style="width:min(100%,520px)">
+    <h1>{{ panel_title }}</h1>
+    <p>Signed in as {{ user.full_name }} ({{ user.role.value }}).</p>
+    <p class="muted">{{ panel_note }}</p>
+    <div style="display:flex;gap:0.75rem;margin-top:1rem">
+      <a class="btn btn-dark" href="/logout">Logout</a>
+      <a class="btn btn-outline" href="/">Public site</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

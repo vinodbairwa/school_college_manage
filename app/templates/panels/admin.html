@@ -1,0 +1,24 @@
+{% extends "panels/admin_base.html" %}
+{% block panel %}
+<h1>Admin dashboard</h1>
+<p class="muted">Manage your school website content, images, and contact details.</p>
+<div class="panel-grid">
+  <div class="stat">
+    <span class="muted">Institution</span>
+    <strong>{{ tenant.institution_type.value|capitalize }}</strong>
+  </div>
+  <div class="stat">
+    <span class="muted">Slug</span>
+    <strong>{{ tenant.slug }}</strong>
+  </div>
+  <div class="stat">
+    <span class="muted">Custom domain</span>
+    <strong>{{ tenant.custom_domain or 'Not set' }}</strong>
+  </div>
+  <div class="stat">
+    <span class="muted">Gallery images</span>
+    <strong>{{ gallery|length }}</strong>
+  </div>
+</div>
+<p>Welcome, {{ user.full_name }}. Start with <a href="/admin/website">Website &amp; Images</a> or <a href="/admin/contact">Contact</a>.</p>
+{% endblock %}
