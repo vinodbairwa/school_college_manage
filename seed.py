@@ -83,16 +83,19 @@ def seed() -> None:
             WebsiteSettings(
                 tenant_id=school.id,
                 hero_title="Learning that feels alive",
-                hero_subtitle="From morning assembly to evening labs — a campus built for wonder, discipline, and belonging.",
-                hero_cta_text="Talk to admissions",
-                hero_cta_link="#contact",
-                about_heading="A school rooted in place",
+                hero_subtitle="Strong academics, warm guidance, and a campus where every student belongs.",
+                hero_cta_text="Apply for admission",
+                hero_cta_link="#admissions",
+                about_heading="A school rooted in care and excellence",
                 about_body=(
-                    "Greenfield Public School blends rigorous academics with arts, sports, and outdoor learning.\n\n"
-                    "Parents and teachers partner closely so every child is known, challenged, and celebrated."
+                    "Greenfield Public School is committed to academic excellence, character formation, "
+                    "and a safe campus for every learner.\n\n"
+                    "We blend rigorous classroom teaching with arts, sports, and life skills — so students "
+                    "grow into confident, curious, and responsible young people. Parents and teachers "
+                    "partner closely so every child is known, challenged, and celebrated."
                 ),
                 gallery_heading="Life on campus",
-                gallery_subtitle="Moments from classrooms, courtyards, and performances.",
+                gallery_subtitle="Classrooms, sports, celebrations, and everyday moments of learning.",
                 is_published=True,
             )
         )
@@ -138,9 +141,19 @@ def seed() -> None:
             WebsiteSettings(
                 tenant_id=college.id,
                 hero_title="Undergraduate excellence",
-                hero_subtitle="Programs designed for careers that start with curiosity.",
-                about_heading="About Ridgeview",
-                about_body="Update this content from the college admin panel.",
+                hero_subtitle="Programs designed for careers that start with curiosity, discipline, and real-world skills.",
+                hero_cta_text="Talk to admissions",
+                hero_cta_link="#admissions",
+                about_heading="About Ridgeview College",
+                about_body=(
+                    "Ridgeview College offers a supportive academic environment with experienced faculty, "
+                    "clear career pathways, and an active campus life.\n\n"
+                    "Students receive guidance for academics, personal growth, and future opportunities — "
+                    "in a community that values integrity and achievement."
+                ),
+                gallery_heading="Campus moments",
+                gallery_subtitle="Academics, clubs, events, and student life at Ridgeview.",
+                is_published=True,
             )
         )
         db.add(ContactInfo(tenant_id=college.id, email="hello@ridgeview.edu", city="Mumbai", state="Maharashtra"))

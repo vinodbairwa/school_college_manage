@@ -16,138 +16,385 @@
 </style>
 {% endblock %}
 {% block body %}
-<header class="hero">
-  <div class="hero-media"></div>
-  <div class="hero-pattern"></div>
-  <div class="container site-nav">
-    <a class="brand" href="/site/{{ tenant.slug }}">
-      {% if tenant.logo_path %}<img src="{{ tenant.logo_path }}" alt="{{ tenant.name }} logo" />{% endif %}
+{% set site_base = '/site/' ~ tenant.slug %}
+{% set inst = tenant.institution_type.value if tenant.institution_type else 'school' %}
+{% set inst_label = 'University' if inst == 'university' else ('College' if inst == 'college' else 'School') %}
+{% set about_fallback %}
+{{ tenant.name }} is committed to academic excellence, character formation, and a safe, welcoming campus for every learner.
+
+We combine strong classroom teaching with arts, sports, and life skills — so students grow into confident, curious, and responsible young people. Families, teachers, and staff work together as partners in every child’s journey.
+{% endset %}
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="topbar" id="topbar">
+  <div class="container topbar-inner">
+    <a class="brand brand-dark" href="{{ site_base }}">
+      {% if tenant.logo_path %}<img src="{{ tenant.logo_path }}" alt="" />{% endif %}
       <span>{{ tenant.name }}</span>
     </a>
-    <nav class="nav-links">
-      <a class="hide-sm" href="#about">About</a>
-      <a class="hide-sm" href="#gallery">Gallery</a>
-      <a class="hide-sm" href="#contact">Contact</a>
-      <a class="btn btn-ghost" href="/login">Portal login</a>
+
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-menu" data-nav-toggle>
+      <span class="nav-toggle-bars" aria-hidden="true"></span>
+      <span class="sr-only">Menu</span>
+    </button>
+
+    <nav class="site-menu" id="site-menu" data-site-menu>
+      <a href="{{ site_base }}#about">About</a>
+      <a href="{{ site_base }}#academics">Academics</a>
+      <a href="{{ site_base }}#campus">Campus</a>
+      <a href="{{ site_base }}#admissions">Admissions</a>
+      <a href="{{ site_base }}#gallery">Gallery</a>
+      <a href="{{ site_base }}#contact">Contact</a>
+      <a class="btn btn-nav" href="/login">Portal login</a>
     </nav>
-  </div>
-  <div class="hero-copy">
-    <p class="hero-brand">{{ tenant.name }}</p>
-    {% if website and website.hero_title %}
-    <h1 class="hero-title">{{ website.hero_title }}</h1>
-    {% elif tenant.tagline %}
-    <h1 class="hero-title">{{ tenant.tagline }}</h1>
-    {% endif %}
-    <p class="hero-sub">
-      {% if website and website.hero_subtitle %}
-        {{ website.hero_subtitle }}
-      {% else %}
-        A place where curiosity meets craft — learning shaped for every student.
-      {% endif %}
-    </p>
-    <div class="hero-actions">
-      <a class="btn" href="{{ website.hero_cta_link if website else '#contact' }}">
-        {{ website.hero_cta_text if website else 'Contact Us' }}
-      </a>
-      <a class="btn btn-ghost" href="#about">Discover more</a>
-    </div>
   </div>
 </header>
 
-<section class="block" id="about">
-  <div class="container about-grid">
-    <div>
-      <p class="section-kicker">Our story</p>
-      <h2 class="section-title">{{ website.about_heading if website and website.about_heading else 'About ' + tenant.name }}</h2>
-      <p class="about-body">{{ website.about_body if website and website.about_body else (tenant.about or 'Update your about section from the admin website panel.') }}</p>
-    </div>
-    <div class="about-visual" role="img" aria-label="Campus visual"></div>
-  </div>
-</section>
-
-<section class="block" id="gallery" style="padding-top:0">
-  <div class="container">
-    <p class="section-kicker">Moments</p>
-    <h2 class="section-title">{{ website.gallery_heading if website else 'Campus Life' }}</h2>
-    {% if website and website.gallery_subtitle %}
-    <p class="section-lead">{{ website.gallery_subtitle }}</p>
-    {% endif %}
-    {% if gallery %}
-    <div class="gallery-strip">
-      {% for item in gallery %}
-      <figure class="gallery-item" style="animation-delay: {{ loop.index0 * 0.08 }}s">
-        <img src="{{ item.image_path }}" alt="{{ item.title or 'Gallery image' }}" loading="lazy" />
-        {% if item.title or item.caption %}
-        <figcaption>{{ item.title or item.caption }}</figcaption>
+<main id="main">
+  <section class="hero" aria-label="Welcome">
+    <div class="hero-media"></div>
+    <div class="hero-pattern"></div>
+    <div class="hero-copy">
+      <p class="hero-brand">{{ tenant.name }}</p>
+      <h1 class="hero-title">
+        {% if website and website.hero_title %}
+          {{ website.hero_title }}
+        {% elif tenant.tagline %}
+          {{ tenant.tagline }}
+        {% else %}
+          Learning that shapes character and future
         {% endif %}
-      </figure>
-      {% endfor %}
-    </div>
-    {% else %}
-    <p class="section-lead" style="margin-top:1rem">Gallery images uploaded from the admin panel will appear here.</p>
-    {% endif %}
-  </div>
-</section>
-
-<section class="block" id="contact">
-  <div class="container contact-wrap">
-    <div>
-      <p class="section-kicker">Reach us</p>
-      <h2 class="section-title">Contact</h2>
-      <p class="section-lead">Admissions, visits, and everyday questions — we are here to help.</p>
-      <ul class="contact-list">
-        <li>
-          <strong>Address</strong>
-          <span>
-            {% if contact %}
-              {{ contact.address_line1 or '' }}{% if contact.address_line2 %}, {{ contact.address_line2 }}{% endif %}<br />
-              {{ contact.city or '' }}{% if contact.state %}, {{ contact.state }}{% endif %} {{ contact.pincode or '' }}
-            {% else %}
-              Update address from Contact panel
-            {% endif %}
-          </span>
-        </li>
-        <li>
-          <strong>Phone</strong>
-          <span>{{ contact.phone_primary if contact and contact.phone_primary else '—' }}{% if contact and contact.phone_secondary %} · {{ contact.phone_secondary }}{% endif %}</span>
-        </li>
-        <li>
-          <strong>Email</strong>
-          <span>{{ contact.email if contact and contact.email else '—' }}{% if contact and contact.email_admissions %}<br />Admissions: {{ contact.email_admissions }}{% endif %}</span>
-        </li>
-        {% if contact and contact.working_hours %}
-        <li>
-          <strong>Hours</strong>
-          <span>{{ contact.working_hours }}</span>
-        </li>
+      </h1>
+      <p class="hero-sub">
+        {% if website and website.hero_subtitle %}
+          {{ website.hero_subtitle }}
+        {% else %}
+          A caring campus for strong academics, values, and all-round growth — built for every student and family.
         {% endif %}
-      </ul>
-      {% if contact %}
-      <div class="socials">
-        {% if contact.facebook_url %}<a href="{{ contact.facebook_url }}" target="_blank" rel="noopener">Facebook</a>{% endif %}
-        {% if contact.instagram_url %}<a href="{{ contact.instagram_url }}" target="_blank" rel="noopener">Instagram</a>{% endif %}
-        {% if contact.youtube_url %}<a href="{{ contact.youtube_url }}" target="_blank" rel="noopener">YouTube</a>{% endif %}
+      </p>
+      <div class="hero-actions">
+        <a class="btn" href="{{ website.hero_cta_link if website and website.hero_cta_link else '#admissions' }}">
+          {{ website.hero_cta_text if website and website.hero_cta_text else 'Apply for admission' }}
+        </a>
+        <a class="btn btn-ghost" href="#about">Explore campus</a>
       </div>
-      {% endif %}
     </div>
-    <div class="contact-panel">
-      <p class="section-kicker">Visit</p>
-      <h3 class="section-title" style="font-size:1.5rem">Campus desk</h3>
-      <p class="section-lead">Prefer walking in? Our front office can guide parents and new families.</p>
-      {% if contact and contact.map_embed_url %}
-      <div style="margin-top:1rem;border-radius:16px;overflow:hidden;aspect-ratio:16/10;background:#d7e3de">
-        <iframe src="{{ contact.map_embed_url }}" width="100%" height="100%" style="border:0;min-height:220px" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+  </section>
+
+  <section class="block" id="about">
+    <div class="container about-grid">
+      <div>
+        <p class="section-kicker">About us</p>
+        <h2 class="section-title">
+          {{ website.about_heading if website and website.about_heading else 'Welcome to ' ~ tenant.name }}
+        </h2>
+        <p class="about-body">{{ website.about_body if website and website.about_body else (tenant.about or about_fallback) }}</p>
+        <ul class="plain-list">
+          <li>Safe, disciplined, and inclusive learning environment</li>
+          <li>Experienced teachers and personal attention</li>
+          <li>Balanced focus on academics, arts, sports, and values</li>
+        </ul>
+      </div>
+      <div class="about-visual" role="img" aria-label="{{ tenant.name }} campus"></div>
+    </div>
+  </section>
+
+  <section class="block block-tint" id="academics">
+    <div class="container">
+      <p class="section-kicker">Academics</p>
+      <h2 class="section-title">A complete education for every learner</h2>
+      <p class="section-lead">
+        Our academic approach is designed for {{ inst_label | lower }}s everywhere — clear curriculum, skilled teachers, and steady progress checks that keep students confident and future-ready.
+      </p>
+      <div class="feature-row">
+        <article class="feature">
+          <h3>Strong curriculum</h3>
+          <p>Age-appropriate syllabus with clear learning goals, regular assessments, and support for every ability level.</p>
+        </article>
+        <article class="feature">
+          <h3>Dedicated teachers</h3>
+          <p>Qualified educators who mentor students, communicate with parents, and keep classrooms engaging and respectful.</p>
+        </article>
+        <article class="feature">
+          <h3>Skills &amp; values</h3>
+          <p>Communication, teamwork, digital literacy, and ethics are woven into daily lessons and activities.</p>
+        </article>
+        <article class="feature">
+          <h3>Holistic growth</h3>
+          <p>Sports, arts, clubs, and community service help students discover talent beyond textbooks.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="campus">
+    <div class="container">
+      <p class="section-kicker">Campus life</p>
+      <h2 class="section-title">A place students are proud to belong</h2>
+      <p class="section-lead">
+        From morning assembly to evening practice, campus life at {{ tenant.name }} builds friendship, discipline, and joy in learning.
+      </p>
+      <div class="split-list">
+        <div>
+          <h3 class="mini-title">What students experience</h3>
+          <ul class="check-list">
+            <li>Well-kept classrooms and learning spaces</li>
+            <li>Library / reading corner and digital resources</li>
+            <li>Playground and indoor activity areas</li>
+            <li>Science, computer, and activity labs (as available)</li>
+            <li>Clean campus with focus on student safety</li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="mini-title">Co-curricular highlights</h3>
+          <ul class="check-list">
+            <li>Sports day, annual day, and cultural events</li>
+            <li>Debates, quizzes, and subject exhibitions</li>
+            <li>Art, music, and drama opportunities</li>
+            <li>Leadership roles and student councils</li>
+            <li>Community service and value education</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block block-deep" id="admissions">
+    <div class="container">
+      <p class="section-kicker section-kicker-light">Admissions</p>
+      <h2 class="section-title section-title-light">Start your journey with us</h2>
+      <p class="section-lead section-lead-light">
+        Admission is open to families seeking a caring academic home. The process is simple and the same spirit applies across all our partner {{ inst_label | lower }}s.
+      </p>
+      <ol class="steps">
+        <li>
+          <span class="step-num">1</span>
+          <div>
+            <strong>Enquiry</strong>
+            <p>Call, email, or visit the campus desk to ask about seats, fees, and documents.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-num">2</span>
+          <div>
+            <strong>Campus visit</strong>
+            <p>Tour classrooms and facilities, and meet our team to understand daily life here.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-num">3</span>
+          <div>
+            <strong>Application</strong>
+            <p>Submit the admission form with required certificates and recent photographs.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-num">4</span>
+          <div>
+            <strong>Confirmation</strong>
+            <p>Complete interaction / assessment (if required), then confirm the seat and join the session.</p>
+          </div>
+        </li>
+      </ol>
+      <div class="hero-actions" style="margin-top:2rem">
+        <a class="btn" href="#contact">Talk to admissions</a>
+        <a class="btn btn-ghost" href="/login">Parent / student portal</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="gallery">
+    <div class="container">
+      <p class="section-kicker">Gallery</p>
+      <h2 class="section-title">{{ website.gallery_heading if website else 'Moments from campus' }}</h2>
+      <p class="section-lead">
+        {% if website and website.gallery_subtitle %}
+          {{ website.gallery_subtitle }}
+        {% else %}
+          A glimpse of classrooms, celebrations, sports, and everyday learning.
+        {% endif %}
+      </p>
+      {% if gallery %}
+      <div class="gallery-strip">
+        {% for item in gallery %}
+        <figure class="gallery-item" style="animation-delay: {{ loop.index0 * 0.08 }}s">
+          <img src="{{ item.image_path }}" alt="{{ item.title or 'Campus gallery image' }}" loading="lazy" />
+          {% if item.title or item.caption %}
+          <figcaption>{{ item.title or item.caption }}</figcaption>
+          {% endif %}
+        </figure>
+        {% endfor %}
       </div>
       {% else %}
-      <p class="muted" style="margin-top:1rem">Add a Google Maps embed URL from the Contact panel to show a map here.</p>
+      <div class="gallery-placeholders">
+        <div class="gallery-ph"><span>Classrooms</span></div>
+        <div class="gallery-ph"><span>Sports</span></div>
+        <div class="gallery-ph"><span>Events</span></div>
+        <div class="gallery-ph"><span>Library</span></div>
+      </div>
+      <p class="section-lead" style="margin-top:1rem">Campus photos added from the admin Gallery panel will appear here automatically.</p>
       {% endif %}
     </div>
-  </div>
-</section>
+  </section>
+
+  <section class="block block-tint" id="contact">
+    <div class="container contact-wrap">
+      <div>
+        <p class="section-kicker">Contact</p>
+        <h2 class="section-title">We are happy to help</h2>
+        <p class="section-lead">For admissions, visits, or general queries, reach the campus office during working hours.</p>
+        <ul class="contact-list">
+          <li>
+            <strong>Address</strong>
+            <span>
+              {% if contact and (contact.address_line1 or contact.city) %}
+                {% if contact.address_line1 %}{{ contact.address_line1 }}{% endif %}
+                {% if contact.address_line2 %}<br />{{ contact.address_line2 }}{% endif %}
+                <br />
+                {{ contact.city or '' }}{% if contact.state %}{% if contact.city %}, {% endif %}{{ contact.state }}{% endif %}
+                {% if contact.pincode %} {{ contact.pincode }}{% endif %}
+                {% if contact.country %}<br />{{ contact.country }}{% endif %}
+              {% else %}
+                Campus address will appear here once updated by the admin.
+              {% endif %}
+            </span>
+          </li>
+          <li>
+            <strong>Phone</strong>
+            <span>
+              {% if contact and contact.phone_primary %}
+                <a href="tel:{{ contact.phone_primary }}">{{ contact.phone_primary }}</a>
+                {% if contact.phone_secondary %} · <a href="tel:{{ contact.phone_secondary }}">{{ contact.phone_secondary }}</a>{% endif %}
+              {% else %}
+                Phone number coming soon
+              {% endif %}
+            </span>
+          </li>
+          <li>
+            <strong>Email</strong>
+            <span>
+              {% if contact and contact.email %}
+                <a href="mailto:{{ contact.email }}">{{ contact.email }}</a>
+              {% else %}
+                Email coming soon
+              {% endif %}
+              {% if contact and contact.email_admissions %}
+                <br />Admissions: <a href="mailto:{{ contact.email_admissions }}">{{ contact.email_admissions }}</a>
+              {% endif %}
+            </span>
+          </li>
+          <li>
+            <strong>Office hours</strong>
+            <span>{{ contact.working_hours if contact and contact.working_hours else 'Mon–Sat · 8:30 AM – 3:30 PM' }}</span>
+          </li>
+        </ul>
+        {% if contact and (contact.facebook_url or contact.instagram_url or contact.youtube_url) %}
+        <div class="socials">
+          {% if contact.facebook_url %}<a href="{{ contact.facebook_url }}" target="_blank" rel="noopener">Facebook</a>{% endif %}
+          {% if contact.instagram_url %}<a href="{{ contact.instagram_url }}" target="_blank" rel="noopener">Instagram</a>{% endif %}
+          {% if contact.youtube_url %}<a href="{{ contact.youtube_url }}" target="_blank" rel="noopener">YouTube</a>{% endif %}
+        </div>
+        {% endif %}
+      </div>
+      <div class="contact-panel">
+        <p class="section-kicker">Visit</p>
+        <h3 class="mini-title">Front office</h3>
+        <p class="section-lead">Walk-ins are welcome during office hours. Please carry a parent ID for campus entry where required.</p>
+        {% if contact and contact.map_embed_url %}
+        <div class="map-frame">
+          <iframe src="{{ contact.map_embed_url }}" title="Campus map" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+        {% else %}
+        <div class="map-fallback">
+          <p>Map embed can be added from the admin Contact panel.</p>
+          <p class="muted">Meanwhile, call or email us for directions to {{ tenant.name }}.</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+</main>
 
 <footer class="site-footer">
-  <div class="container">
-    © {{ tenant.name }} · Powered by EduNest SaaS
+  <div class="container footer-grid">
+    <div class="footer-brand">
+      <a class="brand brand-dark" href="{{ site_base }}">
+        {% if tenant.logo_path %}<img src="{{ tenant.logo_path }}" alt="" />{% endif %}
+        <span>{{ tenant.name }}</span>
+      </a>
+      <p>
+        {{ tenant.tagline or ('A trusted place for learning, values, and growth.') }}
+      </p>
+    </div>
+    <div>
+      <h3 class="footer-heading">Explore</h3>
+      <ul class="footer-links">
+        <li><a href="{{ site_base }}#about">About</a></li>
+        <li><a href="{{ site_base }}#academics">Academics</a></li>
+        <li><a href="{{ site_base }}#campus">Campus life</a></li>
+        <li><a href="{{ site_base }}#admissions">Admissions</a></li>
+        <li><a href="{{ site_base }}#gallery">Gallery</a></li>
+      </ul>
+    </div>
+    <div>
+      <h3 class="footer-heading">For families</h3>
+      <ul class="footer-links">
+        <li><a href="{{ site_base }}#contact">Contact office</a></li>
+        <li><a href="/login">Parent portal</a></li>
+        <li><a href="/login">Student portal</a></li>
+        <li><a href="/login">Teacher login</a></li>
+      </ul>
+    </div>
+    <div>
+      <h3 class="footer-heading">Reach us</h3>
+      <ul class="footer-links footer-contact">
+        {% if contact and contact.phone_primary %}
+        <li><a href="tel:{{ contact.phone_primary }}">{{ contact.phone_primary }}</a></li>
+        {% endif %}
+        {% if contact and contact.email %}
+        <li><a href="mailto:{{ contact.email }}">{{ contact.email }}</a></li>
+        {% endif %}
+        <li>{{ contact.working_hours if contact and contact.working_hours else 'Mon–Sat · 8:30 AM – 3:30 PM' }}</li>
+        {% if contact and contact.city %}
+        <li>{{ contact.city }}{% if contact.state %}, {{ contact.state }}{% endif %}</li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+  <div class="container footer-bottom">
+    <span>© {{ tenant.name }}. All rights reserved.</span>
+    <span>Powered by EduNest SaaS</span>
   </div>
 </footer>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  (function () {
+    var topbar = document.getElementById("topbar");
+    var toggle = document.querySelector("[data-nav-toggle]");
+    var menu = document.querySelector("[data-site-menu]");
+    if (!toggle || !menu) return;
+
+    function setOpen(open) {
+      menu.classList.toggle("is-open", open);
+      toggle.setAttribute("aria-expanded", open ? "true" : "false");
+      document.body.classList.toggle("nav-open", open);
+    }
+
+    toggle.addEventListener("click", function () {
+      setOpen(!menu.classList.contains("is-open"));
+    });
+
+    menu.querySelectorAll("a").forEach(function (link) {
+      link.addEventListener("click", function () { setOpen(false); });
+    });
+
+    window.addEventListener("scroll", function () {
+      if (!topbar) return;
+      topbar.classList.toggle("is-scrolled", window.scrollY > 24);
+    }, { passive: true });
+  })();
+</script>
 {% endblock %}
