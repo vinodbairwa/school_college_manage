@@ -150,6 +150,13 @@ class ContactInfoOut(BaseModel):
     youtube_url: Optional[str] = None
 
 
+class PublicSiteOut(BaseModel):
+    tenant: TenantOut
+    website: Optional[WebsiteSettingsOut] = None
+    contact: Optional[ContactInfoOut] = None
+    gallery: list[GalleryImageOut] = []
+
+
 class UserCreate(BaseModel):
     email: EmailStr
     full_name: str

@@ -1,17 +1,17 @@
-name: Deploy reminder
-
-# Render auto-deploys from Git when the Blueprint is connected.
-# This workflow only verifies the app imports cleanly on every push.
+name: CI smoke
 
 on:
   push:
-    branches: [main]
+    branches: [cursor/testing-de89]
   pull_request:
-    branches: [main]
+    branches: [cursor/testing-de89]
 
 jobs:
-  smoke:
+  backend:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -23,9 +23,36 @@ jobs:
         run: |
           cp .env.example .env
           python -c "from app.main import app; print(app.title)"
-      - name: Seed + health (local)
+      - name: Seed + health
         run: |
           python seed.py
           uvicorn app.main:app --host 127.0.0.1 --port 8000 &
           sleep 2
           curl -sf http://127.0.0.1:8000/health
+          curl -sf http://127.0.0.1:8000/api/public/site/greenfield | head -c 200
+
+  website:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: website
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: npm ci
+      - run: npm run lint
+
+  panel:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: panel
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: npm ci
+      - run: npm run build

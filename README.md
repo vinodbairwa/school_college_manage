@@ -1,18 +1,29 @@
-# EduNest — School / College / University SaaS (FastAPI)
+# EduNest — School / College SaaS (monorepo)
 
-Multi-tenant education SaaS with role panels and a **dynamic public school website** managed from the admin panel (images + contact).
+Architecture (keep code separated):
 
-## Features (current)
+```
+backend/   → FastAPI + MySQL (API, auth, tenancy, uploads)
+website/   → Next.js (public dynamic school websites)
+panel/     → React (Vite) (admin / teacher / student / parent panels)
+```
 
-- **Multi-tenant SaaS**: each school/college/university is a tenant (`slug` + optional **custom domain**)
-- **Roles**: Super Admin, Admin, Teacher, Student, Parent
-- **Public school website**: hero, about, gallery, contact — content & images from Admin panel
-- **Tenant resolution**: custom domain, subdomain (`{slug}.localhost`), or `/site/{slug}`
-- **JWT cookie auth** for web panels + JSON/API login
+Do **not** put website + panel + API all in one app folder.
 
-## Quick start
+## Folders
+
+| Folder | Stack | Purpose |
+|--------|--------|---------|
+| `backend/` | FastAPI, SQLAlchemy, MySQL | REST API, JWT auth, multi-tenant data |
+| `website/` | Next.js 15 | Public school/college websites |
+| `panel/` | React + Vite | Logged-in role panels |
+
+## Quick start (testing branch)
+
+### 1) Backend (API)
 
 ```bash
+cd backend
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
@@ -21,82 +32,55 @@ python seed.py
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-Open:
+API docs: http://127.0.0.1:8000/docs  
+Public site JSON: http://127.0.0.1:8000/api/public/site/greenfield
 
-- Public demo school: http://127.0.0.1:8000/site/greenfield
-- Login: http://127.0.0.1:8000/login
-- API docs: http://127.0.0.1:8000/docs
+### 2) MySQL (optional, recommended)
 
-## Free permanent deploy (Render)
+```bash
+docker compose up -d mysql
+```
 
-Auto-deploys on every push to `main` (code changes go live automatically).
+Then in `backend/.env`:
 
-1. Open this one-click link (free plan, GitHub login once):  
-   **[Deploy to Render](https://dashboard.render.com/blueprint/new?repo=https://github.com/vinodbairwa/school_college_manage)**
-2. Click **Apply** → wait for the first build
-3. Open your live URL: `https://edunest-saas.onrender.com` (exact URL shown in Render dashboard)
+```env
+DATABASE_URL=mysql+pymysql://edunest:edunest@127.0.0.1:3306/edunest
+```
 
-Demo login after deploy:
+Re-run `python seed.py`.
 
-| Role | Email | Password |
-|------|-------|----------|
-| School Admin | `admin@greenfield.edu` | `admin123` |
-| Super Admin | `super@edunest.app` | `super123` |
+### 3) Website (Next.js)
 
-Public site: `/site/greenfield` · Login: `/login`
+```bash
+cd website
+cp .env.local.example .env.local
+npm install
+npm run dev
+```
 
-> Free Render services sleep after ~15 min idle (first request may take ~30–50s).
+Open: http://127.0.0.1:3000/site/greenfield
+
+### 4) Panel (React)
+
+```bash
+cd panel
+cp .env.example .env
+npm install
+npm run dev
+```
+
+Open: http://127.0.0.1:5173/login
 
 ## Demo accounts
 
-| Role | Email | Password | Tenant select |
-|------|-------|----------|---------------|
-| Super Admin | `super@edunest.app` | `super123` | Platform Super Admin |
-| School Admin | `admin@greenfield.edu` | `admin123` | Greenfield Public School |
-| Teacher | `teacher@greenfield.edu` | `teacher123` | Greenfield… |
-| Student | `student@greenfield.edu` | `student123` | Greenfield… |
-| Parent | `parent@greenfield.edu` | `parent123` | Greenfield… |
+| Role | Email | Password | Tenant |
+|------|-------|----------|--------|
+| Super Admin | `super@edunest.app` | `super123` | (blank) |
+| School Admin | `admin@greenfield.edu` | `admin123` | greenfield |
+| Teacher | `teacher@greenfield.edu` | `teacher123` | greenfield |
 
-## Admin: dynamic website
+## Notes
 
-After logging in as school admin:
-
-1. **Website & Images** — hero/about text, hero image, about image, logo  
-2. **Gallery** — upload campus photos  
-3. **Contact** — address, phones, emails, map embed, social links  
-
-Changes show immediately on `/site/greenfield`.
-
-## Custom domain (SaaS)
-
-1. Super Admin creates a tenant (or Admin sets domain) with e.g. `www.myschool.com`
-2. Point the client DNS (A/CNAME) to your server
-3. Reverse proxy (nginx/Caddy) forwards Host header to this app  
-4. App resolves tenant by `Tenant.custom_domain`
-
-Local/dev overrides:
-
-- `/site/{slug}`
-- `?tenant=greenfield`
-- Header `X-Tenant-Slug: greenfield`
-
-## Project layout
-
-```
-app/
-  main.py           # FastAPI app
-  models.py         # Tenant, User, Website, Gallery, Contact
-  auth.py           # JWT + roles
-  tenancy.py        # Domain / subdomain resolution
-  routers/          # auth, admin, super-admin, web UI
-  templates/        # School site + panels (Jinja2)
-  static/css/       # Site styles
-seed.py
-```
-
-## Next (planned)
-
-- Full teacher / student / parent modules (attendance, results, fees)
-- College & university website templates
-- Billing / subscription per tenant
-- Alembic migrations + PostgreSQL for production
+- Legacy Jinja templates still exist under `backend/app/templates` during migration.
+- New work: public UI → `website/`, panels → `panel/`, APIs → `backend/`.
+- Branch policy: develop on `cursor/testing-de89` — do not merge to `main` until approved.

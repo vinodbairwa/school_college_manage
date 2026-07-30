@@ -1,18 +1,19 @@
-# Free permanent hosting: Render Blueprint
-# One-click: https://dashboard.render.com/blueprint/new?repo=https://github.com/vinodbairwa/school_college_manage
-# Auto-deploys on every push to the connected branch.
+# Free permanent hosting note:
+# Deploy backend/ as the FastAPI service.
+# Deploy website/ (Next.js) and panel/ (React) as separate frontends.
 
 services:
   - type: web
-    name: edunest-saas
+    name: edunest-api
     runtime: python
     plan: free
     region: oregon
-    branch: main
+    rootDir: backend
+    branch: cursor/testing-de89
     buildCommand: pip install -r requirements.txt
     startCommand: bash start.sh
     healthCheckPath: /health
-    autoDeploy: true
+    autoDeploy: false
     envVars:
       - key: PYTHON_VERSION
         value: "3.12.8"
@@ -22,7 +23,5 @@ services:
         value: sqlite:///./school_saas.db
       - key: UPLOAD_DIR
         value: uploads
-      - key: BASE_DOMAIN
-        value: onrender.com
-      - key: ACCESS_TOKEN_EXPIRE_MINUTES
-        value: "1440"
+      - key: CORS_ORIGINS
+        value: http://localhost:3000,http://localhost:5173
