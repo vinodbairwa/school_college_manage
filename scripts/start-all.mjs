@@ -176,9 +176,9 @@ try {
       path.join(ROOT, "backend")
     )
   );
-  children.push(
-    spawnProc("website", npm, ["run", "dev", "--", "-H", "0.0.0.0", "-p", "3000"], path.join(ROOT, "website"))
-  );
+    children.push(
+      spawnProc("website", npm, ["run", "dev"], path.join(ROOT, "website"))
+    );
   children.push(
     spawnProc("panel", npm, ["run", "dev", "--", "--host", "0.0.0.0", "--port", "5173"], path.join(ROOT, "panel"))
   );

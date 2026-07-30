@@ -1,13 +1,15 @@
 import Link from "next/link";
 import { fetchTenants, type PublicTenant } from "@/lib/api";
+import { BackendDown } from "@/components/BackendDown";
 
 export default async function HomePage() {
   let tenants: PublicTenant[] = [];
-  let error = "";
+  let showBackendDown = false;
+
   try {
     tenants = await fetchTenants();
   } catch {
-    error = "backend_unreachable";
+    showBackendDown = true;
   }
 
   return (
@@ -18,30 +20,14 @@ export default async function HomePage() {
           Choose a school or college website. Public sites are powered by Next.js and the FastAPI
           backend.
         </p>
-        {error ? (
-          <div className="error">
-            <strong>Backend API is not reachable on port 8000.</strong>
-            <p className="error-text">
-              Website alone is not enough. FastAPI backend must also be running.
-            </p>
-            <ol className="error-list">
-              <li>
-                From project root run: <code>npm start</code> (starts backend + website + panel)
-              </li>
-              <li>
-                Confirm backend: open <code>http://127.0.0.1:8000/health</code>
-              </li>
-              <li>
-                Then refresh this page. Full help: <code>LOCAL_SETUP.md</code>
-              </li>
-            </ol>
-          </div>
-        ) : null}
+
+        {showBackendDown ? <BackendDown /> : null}
+
         <div className="school-list">
-          {tenants.map((t) => (
-            <Link key={t.id} href={`/site/${t.slug}`}>
-              <strong>{t.name}</strong>
-              <span className="muted">{t.tagline || t.institution_type}</span>
+          {tenants.map((tenant) => (
+            <Link key={tenant.id} href={`/site/${tenant.slug}`}>
+              <strong>{tenant.name}</strong>
+              <span className="muted">{tenant.tagline || tenant.institution_type}</span>
             </Link>
           ))}
         </div>
