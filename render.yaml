@@ -1,0 +1,28 @@
+# Free permanent hosting: Render Blueprint
+# One-click: https://dashboard.render.com/blueprint/new?repo=https://github.com/vinodbairwa/school_college_manage
+# Auto-deploys on every push to the connected branch.
+
+services:
+  - type: web
+    name: edunest-saas
+    runtime: python
+    plan: free
+    region: oregon
+    branch: main
+    buildCommand: pip install -r requirements.txt
+    startCommand: bash start.sh
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.8"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        value: sqlite:///./school_saas.db
+      - key: UPLOAD_DIR
+        value: uploads
+      - key: BASE_DOMAIN
+        value: onrender.com
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "1440"

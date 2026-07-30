@@ -2,6 +2,7 @@ from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
+from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 
 from app.config import get_settings
 from app.database import Base, engine
@@ -11,6 +12,8 @@ from app.routers import admin, auth, super_admin, web
 settings = get_settings()
 
 app = FastAPI(title=settings.app_name, version="0.1.0")
+# Trust X-Forwarded-* from Render / Cloudflare / reverse proxies
+app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="*")
 app.add_middleware(LoginRedirectMiddleware)
 
 # Ensure upload + static dirs exist

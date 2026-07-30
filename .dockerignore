@@ -1,0 +1,15 @@
+.venv
+venv
+__pycache__
+*.pyc
+.git
+.gitignore
+.env
+school_saas.db
+uploads/*
+!uploads/.gitkeep
+.pytest_cache
+.mypy_cache
+*.log
+.cursor
+opt
