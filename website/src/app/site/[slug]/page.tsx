@@ -1,5 +1,12 @@
 import Link from "next/link";
-import { fetchSite, mediaUrl, type PublicSite } from "@/lib/api";
+import {
+  fetchSite,
+  mediaUrl,
+  parseJson,
+  type PublicSite,
+  type SubjectsMap,
+  type Topper,
+} from "@/lib/api";
 import styles from "./school.module.css";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -14,6 +21,20 @@ export async function generateMetadata({ params }: Props) {
   }
 }
 
+function SubjectGroup({ title, items }: { title: string; items?: string[] }) {
+  if (!items?.length) return null;
+  return (
+    <div className={styles.subjectGroup}>
+      <h3>{title}</h3>
+      <ul>
+        {items.map((item) => (
+          <li key={item}>{item}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 export default async function SchoolSitePage({ params }: Props) {
   const { slug } = await params;
   let site: PublicSite;
@@ -24,7 +45,9 @@ export default async function SchoolSitePage({ params }: Props) {
       <main className={styles.wrap}>
         <div className="container">
           <h1>School not found</h1>
-          <p><Link href="/">Back to directory</Link></p>
+          <p>
+            <Link href="/">Back to directory</Link>
+          </p>
         </div>
       </main>
     );
@@ -34,6 +57,9 @@ export default async function SchoolSitePage({ params }: Props) {
   const panelUrl = process.env.NEXT_PUBLIC_PANEL_URL || "http://127.0.0.1:5173";
   const heroImage = mediaUrl(website?.hero_image_path);
   const aboutImage = mediaUrl(website?.about_image_path);
+  const subjects = parseJson<SubjectsMap>(website?.subjects_json, {});
+  const toppers = parseJson<Topper[]>(website?.toppers_json, []) || [];
+  const legacyAdmin = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
   return (
     <div
@@ -57,31 +83,66 @@ export default async function SchoolSitePage({ params }: Props) {
           <nav className={styles.menu}>
             <a href="#about">About</a>
             <a href="#academics">Academics</a>
-            <a href="#campus">Campus</a>
-            <a href="#admissions">Admissions</a>
+            <a href="#toppers">Toppers</a>
+            <a href="#method">Method</a>
             <a href="#gallery">Gallery</a>
             <a href="#contact">Contact</a>
-            <a className={styles.btnNav} href={panelUrl}>Portal login</a>
+            <a className={styles.btnNav} href={panelUrl}>
+              Portal login
+            </a>
           </nav>
         </div>
       </header>
 
       <section
         className={styles.hero}
-        style={heroImage ? { backgroundImage: `linear-gradient(180deg, rgba(8,28,32,.28), rgba(8,28,32,.78)), url(${heroImage})` } : undefined}
+        style={
+          heroImage
+            ? {
+                backgroundImage: `linear-gradient(180deg, rgba(8,28,32,.28), rgba(8,28,32,.78)), url(${heroImage})`,
+              }
+            : undefined
+        }
       >
         <div className={`container ${styles.heroCopy}`}>
           <p className={styles.heroBrand}>{tenant.name}</p>
           <h1>{website?.hero_title || tenant.tagline || "Learning that shapes character and future"}</h1>
           <p className={styles.heroSub}>
             {website?.hero_subtitle ||
-              "A caring campus for strong academics, values, and all-round growth — built for every student and family."}
+              "A caring campus for strong academics, values, and all-round growth."}
           </p>
           <div className={styles.actions}>
             <a className={styles.btn} href={website?.hero_cta_link || "#admissions"}>
               {website?.hero_cta_text || "Apply for admission"}
             </a>
-            <a className={styles.btnGhost} href="#about">Explore campus</a>
+            <a className={styles.btnGhost} href="#academics">
+              View academics
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section className={styles.infoStrip} aria-label="School snapshot">
+        <div className={`container ${styles.infoGrid}`}>
+          <div>
+            <span>Board</span>
+            <strong>{website?.board_name || "CBSE"}</strong>
+          </div>
+          <div>
+            <span>Classes</span>
+            <strong>{website?.classes_offered || "Nursery to Class 12"}</strong>
+          </div>
+          <div>
+            <span>School timing</span>
+            <strong>{website?.school_timings || contact?.working_hours || "Mon–Sat · 8:00 AM – 2:30 PM"}</strong>
+          </div>
+          <div>
+            <span>Assembly</span>
+            <strong>{website?.assembly_time || "7:50 AM"}</strong>
+          </div>
+          <div>
+            <span>Streams (11–12)</span>
+            <strong>{website?.streams_offered || "Science, Commerce, Arts"}</strong>
           </div>
         </div>
       </section>
@@ -94,13 +155,8 @@ export default async function SchoolSitePage({ params }: Props) {
             <p className={styles.body}>
               {website?.about_body ||
                 tenant.about ||
-                `${tenant.name} is committed to academic excellence, character formation, and a safe, welcoming campus for every learner.`}
+                `${tenant.name} is committed to academic excellence and a safe campus for every learner.`}
             </p>
-            <ul className={styles.plainList}>
-              <li>Safe, disciplined, and inclusive learning environment</li>
-              <li>Experienced teachers and personal attention</li>
-              <li>Balanced focus on academics, arts, sports, and values</li>
-            </ul>
           </div>
           <div
             className={styles.aboutVisual}
@@ -113,64 +169,70 @@ export default async function SchoolSitePage({ params }: Props) {
       <section className={`${styles.block} ${styles.tint}`} id="academics">
         <div className="container">
           <p className={styles.kicker}>Academics</p>
-          <h2>A complete education for every learner</h2>
+          <h2>Classes, subjects &amp; streams</h2>
           <p className={styles.lead}>
-            Clear curriculum, skilled teachers, and steady progress checks that keep students confident and future-ready.
+            {tenant.name} follows <strong>{website?.board_name || "CBSE"}</strong> curriculum from{" "}
+            <strong>{website?.classes_offered || "Nursery to Class 12"}</strong>. Senior secondary offers{" "}
+            <strong>{website?.streams_offered || "Science, Commerce and Arts"}</strong>.
           </p>
-          <div className={styles.features}>
-            <article><h3>Strong curriculum</h3><p>Age-appropriate syllabus with clear learning goals and regular assessments.</p></article>
-            <article><h3>Dedicated teachers</h3><p>Qualified educators who mentor students and partner with families.</p></article>
-            <article><h3>Skills &amp; values</h3><p>Communication, teamwork, digital literacy, and ethics in daily learning.</p></article>
-            <article><h3>Holistic growth</h3><p>Sports, arts, clubs, and community service beyond textbooks.</p></article>
+
+          <div className={styles.subjectGrid}>
+            <SubjectGroup title="Primary (I–V)" items={subjects?.primary} />
+            <SubjectGroup title="Middle (VI–VIII)" items={subjects?.middle} />
+            <SubjectGroup title="Secondary (IX–X)" items={subjects?.secondary} />
+          </div>
+
+          <h3 className={styles.subheading}>Class 11 &amp; 12 streams</h3>
+          <div className={styles.subjectGrid}>
+            <SubjectGroup title="Science" items={subjects?.senior?.science} />
+            <SubjectGroup title="Commerce" items={subjects?.senior?.commerce} />
+            <SubjectGroup title="Arts" items={subjects?.senior?.arts} />
           </div>
         </div>
       </section>
 
-      <section className={styles.block} id="campus">
+      <section className={styles.block} id="toppers">
         <div className="container">
-          <p className={styles.kicker}>Campus life</p>
-          <h2>A place students are proud to belong</h2>
+          <p className={styles.kicker}>Results</p>
+          <h2>Our board toppers</h2>
           <p className={styles.lead}>
-            From morning assembly to evening practice, campus life at {tenant.name} builds friendship, discipline, and joy in learning.
+            Class 10 and Class 12 achievers from Science, Commerce, and Arts — updated from the school website panel.
           </p>
-          <div className={styles.split}>
-            <div>
-              <h3>What students experience</h3>
-              <ul>
-                <li>Well-kept classrooms and learning spaces</li>
-                <li>Library / reading corner and digital resources</li>
-                <li>Playground and indoor activity areas</li>
-                <li>Clean campus with focus on student safety</li>
-              </ul>
+          {toppers.length ? (
+            <div className={styles.topperGrid}>
+              {toppers.map((t) => (
+                <article key={`${t.name}-${t.class_name}-${t.stream}`}>
+                  <div
+                    className={styles.topperPhoto}
+                    style={
+                      t.photo_path
+                        ? { backgroundImage: `url(${mediaUrl(t.photo_path)})` }
+                        : undefined
+                    }
+                  />
+                  <h3>{t.name}</h3>
+                  <p>
+                    {t.class_name}
+                    {t.stream ? ` · ${t.stream}` : ""}
+                  </p>
+                  <strong>
+                    {t.percentage}
+                    {t.year ? ` · ${t.year}` : ""}
+                  </strong>
+                </article>
+              ))}
             </div>
-            <div>
-              <h3>Co-curricular highlights</h3>
-              <ul>
-                <li>Sports day, annual day, and cultural events</li>
-                <li>Debates, quizzes, and exhibitions</li>
-                <li>Art, music, and drama opportunities</li>
-                <li>Leadership roles and value education</li>
-              </ul>
-            </div>
-          </div>
+          ) : (
+            <p className={styles.lead}>Toppers added from the admin Website panel will appear here.</p>
+          )}
         </div>
       </section>
 
-      <section className={`${styles.block} ${styles.deep}`} id="admissions">
+      <section className={`${styles.block} ${styles.tint}`} id="method">
         <div className="container">
-          <p className={styles.kickerLight}>Admissions</p>
-          <h2>Start your journey with us</h2>
-          <p className={styles.leadLight}>Enquiry → campus visit → application → confirmation. Simple steps for every family.</p>
-          <ol className={styles.steps}>
-            <li><strong>Enquiry</strong><span>Call, email, or visit the campus desk.</span></li>
-            <li><strong>Campus visit</strong><span>Tour classrooms and meet our team.</span></li>
-            <li><strong>Application</strong><span>Submit form with required documents.</span></li>
-            <li><strong>Confirmation</strong><span>Complete interaction if needed, then join.</span></li>
-          </ol>
-          <div className={styles.actions}>
-            <a className={styles.btn} href="#contact">Talk to admissions</a>
-            <a className={styles.btnGhost} href={panelUrl}>Parent / student portal</a>
-          </div>
+          <p className={styles.kicker}>Teaching method</p>
+          <h2>How we teach</h2>
+          <p className={styles.body}>{website?.methodology || "Student-centred CBSE teaching with continuous assessment, labs, and mentorship."}</p>
         </div>
       </section>
 
@@ -178,7 +240,7 @@ export default async function SchoolSitePage({ params }: Props) {
         <div className="container">
           <p className={styles.kicker}>Gallery</p>
           <h2>{website?.gallery_heading || "Moments from campus"}</h2>
-          <p className={styles.lead}>{website?.gallery_subtitle || "A glimpse of classrooms, celebrations, sports, and everyday learning."}</p>
+          <p className={styles.lead}>{website?.gallery_subtitle || "Campus photos from the school gallery."}</p>
           {gallery.length ? (
             <div className={styles.gallery}>
               {gallery.map((item) => (
@@ -190,8 +252,44 @@ export default async function SchoolSitePage({ params }: Props) {
               ))}
             </div>
           ) : (
-            <p className={styles.lead}>Gallery images uploaded from the admin panel will appear here.</p>
+            <p className={styles.lead}>Upload gallery images from the admin Gallery panel.</p>
           )}
+        </div>
+      </section>
+
+      <section className={`${styles.block} ${styles.deep}`} id="admissions">
+        <div className="container">
+          <p className={styles.kickerLight}>Admissions</p>
+          <h2>Join Greenfield</h2>
+          <p className={styles.leadLight}>
+            Seats open for Nursery to Class 12. Bring previous marksheet for Class 10/12 lateral entry.
+          </p>
+          <ol className={styles.steps}>
+            <li>
+              <strong>Enquiry</strong>
+              <span>Call admissions or visit the campus desk.</span>
+            </li>
+            <li>
+              <strong>Campus visit</strong>
+              <span>Tour classrooms, labs, and meet teachers.</span>
+            </li>
+            <li>
+              <strong>Application</strong>
+              <span>Submit form with documents and photos.</span>
+            </li>
+            <li>
+              <strong>Confirmation</strong>
+              <span>Interaction / assessment if needed, then fee confirmation.</span>
+            </li>
+          </ol>
+          <div className={styles.actions}>
+            <a className={styles.btn} href="#contact">
+              Talk to admissions
+            </a>
+            <a className={styles.btnGhost} href={`${legacyAdmin}/admin/website`}>
+              Edit website (admin panel)
+            </a>
+          </div>
         </div>
       </section>
 
@@ -205,7 +303,13 @@ export default async function SchoolSitePage({ params }: Props) {
                 <strong>Address</strong>
                 <span>
                   {contact?.address_line1 || "Campus address"}
-                  {contact?.city ? <><br />{contact.city}{contact.state ? `, ${contact.state}` : ""}</> : null}
+                  {contact?.city ? (
+                    <>
+                      <br />
+                      {contact.city}
+                      {contact.state ? `, ${contact.state}` : ""}
+                    </>
+                  ) : null}
                 </span>
               </li>
               <li>
@@ -217,14 +321,14 @@ export default async function SchoolSitePage({ params }: Props) {
                 <span>{contact?.email || "—"}</span>
               </li>
               <li>
-                <strong>Hours</strong>
-                <span>{contact?.working_hours || "Mon–Sat · 8:30 AM – 3:30 PM"}</span>
+                <strong>School hours</strong>
+                <span>{website?.school_timings || contact?.working_hours || "Mon–Sat · 8:00 AM – 2:30 PM"}</span>
               </li>
             </ul>
           </div>
           <div className={styles.visit}>
             <h3>Front office</h3>
-            <p>Walk-ins are welcome during office hours.</p>
+            <p>Walk-ins welcome during school hours. Parent ID may be required at the gate.</p>
             {contact?.map_embed_url ? (
               <iframe src={contact.map_embed_url} title="Map" loading="lazy" />
             ) : (
@@ -238,23 +342,24 @@ export default async function SchoolSitePage({ params }: Props) {
         <div className={`container ${styles.footerGrid}`}>
           <div>
             <strong>{tenant.name}</strong>
-            <p>{tenant.tagline || "A trusted place for learning, values, and growth."}</p>
+            <p>{tenant.tagline || "CBSE school · Nursery to Class 12"}</p>
           </div>
           <div>
             <h3>Explore</h3>
-            <a href="#about">About</a>
             <a href="#academics">Academics</a>
-            <a href="#admissions">Admissions</a>
+            <a href="#toppers">Toppers</a>
+            <a href="#gallery">Gallery</a>
           </div>
           <div>
             <h3>Families</h3>
             <a href="#contact">Contact</a>
             <a href={panelUrl}>Portal login</a>
+            <a href={`${legacyAdmin}/login`}>Website panel login</a>
           </div>
         </div>
         <div className={`container ${styles.footerBottom}`}>
           <span>© {tenant.name}</span>
-          <span>Powered by EduNest · Next.js website</span>
+          <span>Board: {website?.board_name || "CBSE"}</span>
         </div>
       </footer>
     </div>

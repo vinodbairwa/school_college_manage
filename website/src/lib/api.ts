@@ -2,16 +2,31 @@ function trimSlash(url: string) {
   return url.replace(/\/$/, "");
 }
 
-/**
- * Server components should call the backend directly.
- * Browser code can use same-origin /api via Next.js rewrites.
- */
 export function getApiBase() {
-  // Prefer explicit env; default to local FastAPI
   return trimSlash(process.env.NEXT_PUBLIC_API_URL || process.env.BACKEND_URL || "http://127.0.0.1:8000");
 }
 
 const API_BASE = getApiBase();
+
+export type Topper = {
+  name: string;
+  class_name?: string;
+  stream?: string;
+  percentage?: string;
+  year?: string;
+  photo_path?: string;
+};
+
+export type SubjectsMap = {
+  primary?: string[];
+  middle?: string[];
+  secondary?: string[];
+  senior?: {
+    science?: string[];
+    commerce?: string[];
+    arts?: string[];
+  };
+};
 
 export type PublicTenant = {
   id: number;
@@ -47,6 +62,14 @@ export type PublicSite = {
     about_image_path?: string | null;
     gallery_heading: string;
     gallery_subtitle?: string | null;
+    board_name?: string | null;
+    classes_offered?: string | null;
+    school_timings?: string | null;
+    assembly_time?: string | null;
+    streams_offered?: string | null;
+    subjects_json?: string | null;
+    methodology?: string | null;
+    toppers_json?: string | null;
   } | null;
   contact?: {
     address_line1?: string | null;
@@ -79,22 +102,21 @@ export function mediaUrl(path?: string | null) {
   return `${API_BASE}${path.startsWith("/") ? "" : "/"}${path}`;
 }
 
-async function apiFetch(pathname: string, init?: RequestInit) {
-  const bases = Array.from(
-    new Set([
-      API_BASE,
-      "http://127.0.0.1:8000",
-      "http://localhost:8000",
-    ])
-  );
+export function parseJson<T>(raw?: string | null, fallback?: T): T | undefined {
+  if (!raw) return fallback;
+  try {
+    return JSON.parse(raw) as T;
+  } catch {
+    return fallback;
+  }
+}
 
+async function apiFetch(pathname: string, init?: RequestInit) {
+  const bases = Array.from(new Set([API_BASE, "http://127.0.0.1:8000", "http://localhost:8000"]));
   let lastError: unknown;
   for (const base of bases) {
     try {
-      const res = await fetch(`${base}${pathname}`, {
-        ...init,
-        cache: "no-store",
-      });
+      const res = await fetch(`${base}${pathname}`, { ...init, cache: "no-store" });
       return { res, base };
     } catch (err) {
       lastError = err;

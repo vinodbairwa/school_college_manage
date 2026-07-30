@@ -9,6 +9,7 @@ from app.config import get_settings
 from app.database import Base, engine
 from app.middleware import LoginRedirectMiddleware
 from app.routers import admin, auth, public, super_admin, web
+from app.schema_upgrade import ensure_schema
 
 settings = get_settings()
 
@@ -29,6 +30,7 @@ static_dir = Path(__file__).resolve().parent / "static"
 static_dir.mkdir(parents=True, exist_ok=True)
 
 Base.metadata.create_all(bind=engine)
+ensure_schema()
 
 app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
 app.mount("/uploads", StaticFiles(directory=str(settings.upload_path)), name="uploads")

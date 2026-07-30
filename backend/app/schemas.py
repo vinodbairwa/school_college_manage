@@ -78,6 +78,14 @@ class WebsiteSettingsUpdate(BaseModel):
     about_body: Optional[str] = None
     gallery_heading: Optional[str] = None
     gallery_subtitle: Optional[str] = None
+    board_name: Optional[str] = None
+    classes_offered: Optional[str] = None
+    school_timings: Optional[str] = None
+    assembly_time: Optional[str] = None
+    streams_offered: Optional[str] = None
+    subjects_json: Optional[str] = None
+    methodology: Optional[str] = None
+    toppers_json: Optional[str] = None
     is_published: Optional[bool] = None
 
 
@@ -96,6 +104,14 @@ class WebsiteSettingsOut(BaseModel):
     about_image_path: Optional[str] = None
     gallery_heading: str
     gallery_subtitle: Optional[str] = None
+    board_name: Optional[str] = None
+    classes_offered: Optional[str] = None
+    school_timings: Optional[str] = None
+    assembly_time: Optional[str] = None
+    streams_offered: Optional[str] = None
+    subjects_json: Optional[str] = None
+    methodology: Optional[str] = None
+    toppers_json: Optional[str] = None
     is_published: bool
 
 

@@ -85,6 +85,96 @@
 .btnGhost { border: 1px solid rgba(255,255,255,0.45); color: white; }
 .block { padding: 4.5rem 0; }
 .tint { background: rgba(11,61,68,0.04); }
+.infoStrip {
+  background: #fff;
+  border-bottom: 1px solid rgba(16, 42, 46, 0.08);
+  padding: 1.25rem 0;
+}
+.infoGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1rem;
+}
+.infoGrid span {
+  display: block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #3a5559;
+  margin-bottom: 0.25rem;
+}
+.infoGrid strong {
+  font-family: var(--font-display), serif;
+  font-size: 1rem;
+  line-height: 1.35;
+}
+.subjectGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  margin-top: 1.75rem;
+}
+.subjectGroup h3 {
+  font-family: var(--font-display), serif;
+  margin: 0 0 0.65rem;
+  font-size: 1.15rem;
+}
+.subjectGroup ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.45rem;
+}
+.subjectGroup li {
+  color: #3a5559;
+  padding-left: 1rem;
+  position: relative;
+}
+.subjectGroup li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.55rem;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.subheading {
+  font-family: var(--font-display), serif;
+  margin: 2.5rem 0 0;
+  font-size: 1.4rem;
+}
+.topperGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+  margin-top: 1.75rem;
+}
+.topperGrid article h3 {
+  font-family: var(--font-display), serif;
+  margin: 0.85rem 0 0.25rem;
+  font-size: 1.1rem;
+}
+.topperGrid article p {
+  margin: 0;
+  color: #3a5559;
+}
+.topperGrid article strong {
+  display: block;
+  margin-top: 0.4rem;
+  color: var(--deep);
+}
+.topperPhoto {
+  aspect-ratio: 1;
+  border-radius: 18px;
+  background:
+    linear-gradient(160deg, rgba(11, 61, 68, 0.2), rgba(212, 160, 23, 0.25)),
+    #c5d9d4;
+  background-size: cover;
+  background-position: center;
+}
 .deep {
   background: linear-gradient(145deg, var(--deep), #0f4f57 55%, #08292e);
   color: white;
@@ -256,5 +346,6 @@
 }
 @media (max-width: 900px) {
   .menu { display: none; }
-  .aboutGrid, .features, .split, .steps, .contact, .footerGrid { grid-template-columns: 1fr; }
+  .aboutGrid, .features, .split, .steps, .contact, .footerGrid,
+  .infoGrid, .subjectGrid, .topperGrid { grid-template-columns: 1fr; }
 }

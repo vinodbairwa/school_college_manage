@@ -1,7 +1,7 @@
 {% extends "panels/admin_base.html" %}
 {% block panel %}
 <h1>Website &amp; Images</h1>
-<p class="muted">Hero text, about copy, and main images power the public school site.</p>
+<p class="muted">Hero, about, academics, timings, toppers, and images for the public school site.</p>
 
 <div id="msg"></div>
 
@@ -39,6 +39,47 @@
     <label>Gallery subtitle</label>
     <input name="gallery_subtitle" value="{{ website.gallery_subtitle or '' }}" />
   </div>
+
+  <h3>Academics &amp; School info</h3>
+  <div class="form-row">
+    <div class="field">
+      <label>Board (CBSE / RBSE)</label>
+      <input name="board_name" value="{{ website.board_name or '' }}" placeholder="CBSE" />
+    </div>
+    <div class="field">
+      <label>Classes offered</label>
+      <input name="classes_offered" value="{{ website.classes_offered or '' }}" placeholder="Nursery to Class 12" />
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="field">
+      <label>School timings</label>
+      <input name="school_timings" value="{{ website.school_timings or '' }}" placeholder="Mon–Sat · 8:00 AM – 2:30 PM" />
+    </div>
+    <div class="field">
+      <label>Assembly time</label>
+      <input name="assembly_time" value="{{ website.assembly_time or '' }}" placeholder="7:50 AM" />
+    </div>
+  </div>
+  <div class="field">
+    <label>Streams (Class 11–12)</label>
+    <input name="streams_offered" value="{{ website.streams_offered or '' }}" placeholder="Science, Commerce, Arts" />
+  </div>
+  <div class="field">
+    <label>Teaching methodology</label>
+    <textarea name="methodology" rows="6">{{ website.methodology or '' }}</textarea>
+  </div>
+  <div class="field">
+    <label>Subjects JSON</label>
+    <textarea name="subjects_json" rows="8" placeholder='{"primary":["English"],"senior":{"science":["Physics"]}}'>{{ website.subjects_json or '' }}</textarea>
+    <p class="muted">Structured subjects for Primary / Middle / Secondary / Science-Commerce-Arts.</p>
+  </div>
+  <div class="field">
+    <label>Toppers JSON</label>
+    <textarea name="toppers_json" rows="8" placeholder='[{"name":"Aarav","class_name":"Class 12","stream":"Science","percentage":"97%","year":"2025"}]'>{{ website.toppers_json or '' }}</textarea>
+    <p class="muted">Array of toppers shown on the public website.</p>
+  </div>
+
   <button class="btn btn-dark" type="submit">Save website content</button>
 </form>
 

@@ -92,6 +92,15 @@ class WebsiteSettings(Base):
     about_image_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
     gallery_heading: Mapped[str] = mapped_column(String(200), default="Campus Life")
     gallery_subtitle: Mapped[str | None] = mapped_column(String(400), nullable=True)
+    # Academic profile (editable from website panel)
+    board_name: Mapped[str | None] = mapped_column(String(100), nullable=True)  # CBSE / RBSE
+    classes_offered: Mapped[str | None] = mapped_column(String(200), nullable=True)  # Nursery to Class 12
+    school_timings: Mapped[str | None] = mapped_column(String(300), nullable=True)
+    assembly_time: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    streams_offered: Mapped[str | None] = mapped_column(String(300), nullable=True)  # Science, Commerce, Arts
+    subjects_json: Mapped[str | None] = mapped_column(Text, nullable=True)
+    methodology: Mapped[str | None] = mapped_column(Text, nullable=True)
+    toppers_json: Mapped[str | None] = mapped_column(Text, nullable=True)
     is_published: Mapped[bool] = mapped_column(Boolean, default=True)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
