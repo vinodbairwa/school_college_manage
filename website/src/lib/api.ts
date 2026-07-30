@@ -1,4 +1,17 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+function trimSlash(url: string) {
+  return url.replace(/\/$/, "");
+}
+
+/**
+ * Server components should call the backend directly.
+ * Browser code can use same-origin /api via Next.js rewrites.
+ */
+export function getApiBase() {
+  // Prefer explicit env; default to local FastAPI
+  return trimSlash(process.env.NEXT_PUBLIC_API_URL || process.env.BACKEND_URL || "http://127.0.0.1:8000");
+}
+
+const API_BASE = getApiBase();
 
 export type PublicTenant = {
   id: number;
@@ -66,14 +79,38 @@ export function mediaUrl(path?: string | null) {
   return `${API_BASE}${path.startsWith("/") ? "" : "/"}${path}`;
 }
 
+async function apiFetch(pathname: string, init?: RequestInit) {
+  const bases = Array.from(
+    new Set([
+      API_BASE,
+      "http://127.0.0.1:8000",
+      "http://localhost:8000",
+    ])
+  );
+
+  let lastError: unknown;
+  for (const base of bases) {
+    try {
+      const res = await fetch(`${base}${pathname}`, {
+        ...init,
+        cache: "no-store",
+      });
+      return { res, base };
+    } catch (err) {
+      lastError = err;
+    }
+  }
+  throw lastError || new Error("Backend unreachable");
+}
+
 export async function fetchTenants(): Promise<PublicTenant[]> {
-  const res = await fetch(`${API_BASE}/api/public/tenants`, { next: { revalidate: 30 } });
+  const { res } = await apiFetch("/api/public/tenants");
   if (!res.ok) throw new Error("Failed to load schools");
   return res.json();
 }
 
 export async function fetchSite(slug: string): Promise<PublicSite> {
-  const res = await fetch(`${API_BASE}/api/public/site/${slug}`, { next: { revalidate: 15 } });
+  const { res } = await apiFetch(`/api/public/site/${slug}`);
   if (!res.ok) throw new Error("School not found");
   return res.json();
 }

@@ -20,18 +20,20 @@ Do **not** put website + panel + API all in one app folder.
 
 ## Run all three together (recommended)
 
-One command starts **backend + website + panel**:
+**Important:** Website needs the FastAPI backend on port **8000**.
+If you only start `website`, you will see: `Backend API is not reachable`.
 
-```bash
-chmod +x start-all.sh
-./start-all.sh
-```
-
-Or after first install:
+From project root:
 
 ```bash
 npm install
-npm run start
+npm start
+```
+
+Windows PowerShell:
+
+```powershell
+.\start-all.ps1
 ```
 
 Then open:
@@ -40,7 +42,9 @@ Then open:
 |---------|-----|
 | Website (Next.js) | http://127.0.0.1:3000/site/greenfield |
 | Panel (React) | http://127.0.0.1:5173/login |
-| Backend API | http://127.0.0.1:8000/docs |
+| Backend API | http://127.0.0.1:8000/docs /health |
+
+See `LOCAL_SETUP.md` if backend still fails.
 
 Docker (MySQL + all apps):
 
