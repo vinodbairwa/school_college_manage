@@ -24,7 +24,7 @@ services:
       - ./backend/.env
     environment:
       DATABASE_URL: mysql+pymysql://edunest:edunest@mysql:3306/edunest
-      CORS_ORIGINS: http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173
+      CORS_ORIGINS: http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173,http://website:3000,http://panel:5173
     ports:
       - "8000:8000"
     volumes:
@@ -32,6 +32,35 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
+
+  website:
+    build: ./website
+    restart: unless-stopped
+    environment:
+      NEXT_PUBLIC_API_URL: http://127.0.0.1:8000
+      NEXT_PUBLIC_PANEL_URL: http://127.0.0.1:5173
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./website:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - backend
+
+  panel:
+    build: ./panel
+    restart: unless-stopped
+    environment:
+      VITE_API_URL: http://127.0.0.1:8000
+      VITE_WEBSITE_URL: http://127.0.0.1:3000
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./panel:/app
+      - /app/node_modules
+    depends_on:
+      - backend
 
 volumes:
   edunest_mysql:

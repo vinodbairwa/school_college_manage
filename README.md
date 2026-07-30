@@ -18,14 +18,44 @@ Do **not** put website + panel + API all in one app folder.
 | `website/` | Next.js 15 | Public school/college websites |
 | `panel/` | React + Vite | Logged-in role panels |
 
-## Quick start (testing branch)
+## Run all three together (recommended)
+
+One command starts **backend + website + panel**:
+
+```bash
+chmod +x start-all.sh
+./start-all.sh
+```
+
+Or after first install:
+
+```bash
+npm install
+npm run start
+```
+
+Then open:
+
+| Service | URL |
+|---------|-----|
+| Website (Next.js) | http://127.0.0.1:3000/site/greenfield |
+| Panel (React) | http://127.0.0.1:5173/login |
+| Backend API | http://127.0.0.1:8000/docs |
+
+Docker (MySQL + all apps):
+
+```bash
+docker compose up --build
+```
+
+## Quick start (separate terminals)
 
 ### 1) Backend (API)
 
 ```bash
 cd backend
-python3 -m venv .venv
-source .venv/bin/activate
+python3 -m venv ../.venv
+source ../.venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env
 python seed.py

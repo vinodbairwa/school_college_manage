@@ -1,0 +1,20 @@
+{
+  "name": "edunest-saas",
+  "private": true,
+  "version": "0.2.0",
+  "description": "Run backend + Next.js website + React panel together",
+  "scripts": {
+    "install:all": "npm install && npm --prefix website install && npm --prefix panel install",
+    "dev": "concurrently -k -n backend,website,panel -c blue,green,magenta \"npm run dev:backend\" \"npm run dev:website\" \"npm run dev:panel\"",
+    "dev:backend": "bash -lc 'cd backend && source ../.venv/bin/activate && uvicorn app.main:app --reload --host 0.0.0.0 --port 8000'",
+    "dev:website": "npm --prefix website run dev -- -H 0.0.0.0 -p 3000",
+    "dev:panel": "npm --prefix panel run dev -- --host 0.0.0.0 --port 5173",
+    "seed": "bash -lc 'cd backend && source ../.venv/bin/activate && python seed.py'",
+    "start": "npm run seed && npm run dev",
+    "docker:up": "docker compose up --build",
+    "docker:down": "docker compose down"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
