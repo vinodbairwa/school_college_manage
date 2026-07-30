@@ -9,11 +9,11 @@ services:
     plan: free
     region: oregon
     rootDir: backend
-    branch: cursor/testing-de89
+    branch: main
     buildCommand: pip install -r requirements.txt
     startCommand: bash start.sh
     healthCheckPath: /health
-    autoDeploy: false
+    autoDeploy: true
     envVars:
       - key: PYTHON_VERSION
         value: "3.12.8"
@@ -24,4 +24,4 @@ services:
       - key: UPLOAD_DIR
         value: uploads
       - key: CORS_ORIGINS
-        value: http://localhost:3000,http://localhost:5173
+        value: http://localhost:3000,http://localhost:5173,*
