@@ -231,6 +231,8 @@ button, input, select, textarea {
   line-height: 0.95;
   letter-spacing: -0.04em;
   margin: 0 0 1rem;
+  color: #fff;
+  text-shadow: 0 10px 40px rgba(0,0,0,0.35);
   animation: rise 0.9s ease both;
 }
 .hero-title {
@@ -238,7 +240,7 @@ button, input, select, textarea {
   font-weight: 600;
   font-size: clamp(1.15rem, 2.4vw, 1.7rem);
   margin: 0 0 0.75rem;
-  opacity: 0.95;
+  color: rgba(255,255,255,0.96);
   animation: rise 0.9s ease 0.12s both;
 }
 .hero-sub {
@@ -246,7 +248,7 @@ button, input, select, textarea {
   max-width: 36rem;
   font-size: 1.05rem;
   line-height: 1.6;
-  color: rgba(255,255,255,0.86);
+  color: rgba(255,255,255,0.9);
   animation: rise 0.9s ease 0.22s both;
 }
 .hero-actions {
