@@ -27,6 +27,26 @@ Open:
 - Login: http://127.0.0.1:8000/login
 - API docs: http://127.0.0.1:8000/docs
 
+## Free permanent deploy (Render)
+
+Auto-deploys on every push to `main` (code changes go live automatically).
+
+1. Open this one-click link (free plan, GitHub login once):  
+   **[Deploy to Render](https://dashboard.render.com/blueprint/new?repo=https://github.com/vinodbairwa/school_college_manage)**
+2. Click **Apply** → wait for the first build
+3. Open your live URL: `https://edunest-saas.onrender.com` (exact URL shown in Render dashboard)
+
+Demo login after deploy:
+
+| Role | Email | Password |
+|------|-------|----------|
+| School Admin | `admin@greenfield.edu` | `admin123` |
+| Super Admin | `super@edunest.app` | `super123` |
+
+Public site: `/site/greenfield` · Login: `/login`
+
+> Free Render services sleep after ~15 min idle (first request may take ~30–50s).
+
 ## Demo accounts
 
 | Role | Email | Password | Tenant select |
