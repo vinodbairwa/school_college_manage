@@ -9,9 +9,12 @@ website/.env.local
 panel/.env
 school_saas.db
 backend/school_saas.db
+# Keep Greenfield demo photos in git; ignore other uploads
+/uploads/
 backend/uploads/*
 !backend/uploads/.gitkeep
-uploads/
+!backend/uploads/greenfield/
+!backend/uploads/greenfield/**
 .pytest_cache/
 .mypy_cache/
 .DS_Store

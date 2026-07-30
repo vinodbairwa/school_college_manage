@@ -1,118 +1,88 @@
-"""Generate simple demo images for Greenfield (no external downloads)."""
+"""Download real school/human stock photos for Greenfield demo media."""
 
 from __future__ import annotations
 
+import urllib.request
 from pathlib import Path
-
-from PIL import Image, ImageDraw, ImageFont
 
 from app.config import get_settings
 
+# Curated Unsplash images (school campus, classrooms, labs, sports, library, students/people)
+IMAGE_URLS: dict[str, str] = {
+    "hero.jpg": "https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=1600&q=80",
+    "about.jpg": "https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=1400&q=80",
+    "logo.jpg": "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=800&h=800&q=80",
+    "gallery_1.jpg": "https://images.unsplash.com/photo-1588072432836-e10032774350?auto=format&fit=crop&w=1400&q=80",
+    "gallery_2.jpg": "https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&w=1400&q=80",
+    "gallery_3.jpg": "https://images.unsplash.com/photo-1517649763962-0c623066027e?auto=format&fit=crop&w=1400&q=80",
+    "gallery_4.jpg": "https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&w=1400&q=80",
+    "gallery_5.jpg": "https://images.unsplash.com/photo-1523580494863-6f3031224c24?auto=format&fit=crop&w=1400&q=80",
+    "gallery_6.jpg": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1400&q=80",
+    "topper_1.jpg": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=900&h=900&q=80",
+    "topper_2.jpg": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=900&h=900&q=80",
+    "topper_3.jpg": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=900&h=900&q=80",
+    "topper_4.jpg": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=900&h=900&q=80",
+}
 
-def _font(size: int):
+GALLERY_META = [
+    ("gallery_1.jpg", "Smart Classrooms", "Students learning in modern classrooms"),
+    ("gallery_2.jpg", "Science Labs", "Hands-on experiments and discovery"),
+    ("gallery_3.jpg", "Sports Ground", "Fitness, teamwork and outdoor games"),
+    ("gallery_4.jpg", "Library", "Quiet reading and reference space"),
+    ("gallery_5.jpg", "School Events", "Annual day, celebrations and assemblies"),
+    ("gallery_6.jpg", "Computer Lab", "Digital skills and coding practice"),
+]
+
+TOPPERS_META = [
+    ("topper_1.jpg", "Aarav Sharma", "Science", "Class 12", "97.2%"),
+    ("topper_2.jpg", "Isha Patel", "Commerce", "Class 12", "96.4%"),
+    ("topper_3.jpg", "Kabir Singh", "Arts", "Class 12", "95.8%"),
+    ("topper_4.jpg", "Ananya Verma", "All subjects", "Class 10", "98.1%"),
+]
+
+
+def _download(url: str, dest: Path, force: bool = False) -> bool:
+    if dest.exists() and dest.stat().st_size > 10_000 and not force:
+        return True
+    dest.parent.mkdir(parents=True, exist_ok=True)
     try:
-        return ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", size)
-    except OSError:
-        return ImageFont.load_default()
+        req = urllib.request.Request(url, headers={"User-Agent": "EduNestDemo/1.0"})
+        with urllib.request.urlopen(req, timeout=45) as resp:
+            data = resp.read()
+        if len(data) < 1000:
+            return False
+        dest.write_bytes(data)
+        print(f"Downloaded {dest.name} ({len(data)} bytes)")
+        return True
+    except Exception as exc:  # noqa: BLE001
+        print(f"Failed {dest.name}: {exc}")
+        return False
 
 
-def _gradient(size: tuple[int, int], c1: tuple[int, int, int], c2: tuple[int, int, int]) -> Image.Image:
-    w, h = size
-    img = Image.new("RGB", size, c1)
-    draw = ImageDraw.Draw(img)
-    for y in range(h):
-        ratio = y / max(h - 1, 1)
-        r = int(c1[0] + (c2[0] - c1[0]) * ratio)
-        g = int(c1[1] + (c2[1] - c1[1]) * ratio)
-        b = int(c1[2] + (c2[2] - c1[2]) * ratio)
-        draw.line([(0, y), (w, y)], fill=(r, g, b))
-    return img
-
-
-def _label(img: Image.Image, title: str, subtitle: str = "") -> Image.Image:
-    draw = ImageDraw.Draw(img)
-    w, h = img.size
-    draw.rectangle([(0, h - 120), (w, h)], fill=(8, 28, 32, 180) if img.mode == "RGBA" else (8, 28, 32))
-    draw.text((36, h - 95), title, fill=(255, 255, 255), font=_font(36))
-    if subtitle:
-        draw.text((36, h - 50), subtitle, fill=(230, 220, 180), font=_font(20))
-    return img
-
-
-def make_demo_image(rel_path: str, title: str, subtitle: str, colors: tuple[tuple[int, int, int], tuple[int, int, int]], size=(1600, 900)) -> str:
+def ensure_greenfield_media(force: bool = False) -> dict:
+    """Fetch real school/human photos into uploads and return public paths."""
     settings = get_settings()
-    out = settings.upload_path / rel_path
-    out.parent.mkdir(parents=True, exist_ok=True)
-    img = _gradient(size, colors[0], colors[1])
-    # subtle grid
-    draw = ImageDraw.Draw(img)
-    for x in range(0, size[0], 48):
-        draw.line([(x, 0), (x, size[1])], fill=(255, 255, 255, 20) if False else (255, 255, 255))
-        # lighten by blending manually - skip for simplicity
-    _label(img, title, subtitle)
-    img.save(out, quality=88)
-    return f"/uploads/{rel_path.replace(chr(92), '/')}"
+    root = settings.upload_path / "greenfield"
+    root.mkdir(parents=True, exist_ok=True)
 
+    for name, url in IMAGE_URLS.items():
+        ok = _download(url, root / name, force=force)
+        if not ok and not (root / name).exists():
+            raise RuntimeError(f"Could not download required demo image: {name}")
 
-def ensure_greenfield_media() -> dict[str, str | list[dict]]:
-    """Create demo media files and return public paths."""
-    hero = make_demo_image(
-        "greenfield/hero.jpg",
-        "Greenfield Public School",
-        "CBSE · Nursery to Class 12",
-        ((11, 61, 68), (19, 96, 102)),
-    )
-    about = make_demo_image(
-        "greenfield/about.jpg",
-        "Campus & Classrooms",
-        "Safe spaces for every learner",
-        ((20, 70, 78), (45, 110, 100)),
-        size=(1200, 900),
-    )
-    logo = make_demo_image(
-        "greenfield/logo.jpg",
-        "GPS",
-        "Greenfield",
-        ((212, 160, 23), (11, 61, 68)),
-        size=(400, 400),
-    )
     gallery = []
-    specs = [
-        ("gallery_1.jpg", "Smart Classrooms", "Digital learning every day"),
-        ("gallery_2.jpg", "Science Labs", "Hands-on experiments"),
-        ("gallery_3.jpg", "Sports Ground", "Fitness and teamwork"),
-        ("gallery_4.jpg", "Library", "Reading corner & reference"),
-        ("gallery_5.jpg", "Annual Day", "Culture and confidence"),
-        ("gallery_6.jpg", "Computer Lab", "Coding & digital skills"),
-    ]
-    colors = [
-        ((40, 90, 95), (70, 130, 120)),
-        ((55, 80, 110), (30, 60, 90)),
-        ((90, 110, 60), (50, 80, 50)),
-        ((100, 80, 50), (60, 50, 35)),
-        ((90, 50, 70), (50, 30, 50)),
-        ((40, 70, 100), (20, 40, 70)),
-    ]
-    for i, ((fname, title, caption), cols) in enumerate(zip(specs, colors)):
-        path = make_demo_image(f"greenfield/{fname}", title, caption, cols, size=(1200, 800))
-        gallery.append({"title": title, "caption": caption, "image_path": path, "sort_order": i})
+    for i, (fname, title, caption) in enumerate(GALLERY_META):
+        gallery.append(
+            {
+                "title": title,
+                "caption": caption,
+                "image_path": f"/uploads/greenfield/{fname}",
+                "sort_order": i,
+            }
+        )
 
     toppers = []
-    for i, (name, stream, klass, pct) in enumerate(
-        [
-            ("Aarav Sharma", "Science", "Class 12", "97.2%"),
-            ("Isha Patel", "Commerce", "Class 12", "96.4%"),
-            ("Kabir Singh", "Arts", "Class 12", "95.8%"),
-            ("Ananya Verma", "All subjects", "Class 10", "98.1%"),
-        ]
-    ):
-        path = make_demo_image(
-            f"greenfield/topper_{i+1}.jpg",
-            name,
-            f"{klass} · {stream} · {pct}",
-            ((30, 70, 80), (180, 140, 40)),
-            size=(800, 800),
-        )
+    for fname, name, stream, klass, pct in TOPPERS_META:
         toppers.append(
             {
                 "name": name,
@@ -120,8 +90,14 @@ def ensure_greenfield_media() -> dict[str, str | list[dict]]:
                 "stream": stream,
                 "percentage": pct,
                 "year": "2025",
-                "photo_path": path,
+                "photo_path": f"/uploads/greenfield/{fname}",
             }
         )
 
-    return {"hero": hero, "about": about, "logo": logo, "gallery": gallery, "toppers": toppers}
+    return {
+        "hero": "/uploads/greenfield/hero.jpg",
+        "about": "/uploads/greenfield/about.jpg",
+        "logo": "/uploads/greenfield/logo.jpg",
+        "gallery": gallery,
+        "toppers": toppers,
+    }
