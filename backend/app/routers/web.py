@@ -136,6 +136,7 @@ def login_submit(
         token,
         httponly=True,
         samesite="lax",
+        secure=settings.cookie_secure,
         max_age=settings.access_token_expire_minutes * 60,
     )
     return resp

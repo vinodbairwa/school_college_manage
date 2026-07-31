@@ -2,9 +2,9 @@ name: CI smoke
 
 on:
   push:
-    branches: [cursor/testing-de89]
+    branches: [main, cursor/testing-de89]
   pull_request:
-    branches: [cursor/testing-de89]
+    branches: [main, cursor/testing-de89]
 
 jobs:
   backend:

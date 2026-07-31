@@ -77,6 +77,7 @@ def _issue_token(response: Response, user: User) -> Token:
         value=token,
         httponly=True,
         samesite="lax",
+        secure=settings.cookie_secure,
         max_age=settings.access_token_expire_minutes * 60,
     )
     return Token(access_token=token, role=user.role, redirect_to=ROLE_HOME[user.role])
