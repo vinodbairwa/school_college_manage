@@ -105,6 +105,27 @@ npm run dev
 
 Open: http://127.0.0.1:5173/login
 
+## Permanent deploy (Render — free)
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://dashboard.render.com/blueprint/new?repo=https://github.com/vinodbairwa/school_college_manage)
+
+1. Click **Deploy to Render** above (GitHub login once)
+2. Click **Apply** on the Blueprint screen (Free plan)
+3. Wait ~3–5 min for first build
+4. Live URL: **https://edunest-api.onrender.com**
+
+After deploy:
+
+| Page | URL |
+|------|-----|
+| School site | https://edunest-api.onrender.com/site/greenfield |
+| Login | https://edunest-api.onrender.com/login |
+| API health | https://edunest-api.onrender.com/health |
+
+Demo: `admin@greenfield.edu` / `admin123`
+
+> Free Render sleeps after ~15 min idle; first request may take ~30–50s. Every push to `main` auto-deploys.
+
 ## Demo accounts
 
 | Role | Email | Password | Tenant |
@@ -117,4 +138,4 @@ Open: http://127.0.0.1:5173/login
 
 - Legacy Jinja templates still exist under `backend/app/templates` during migration.
 - New work: public UI → `website/`, panels → `panel/`, APIs → `backend/`.
-- Branch policy: develop on `cursor/testing-de89` — do not merge to `main` until approved.
+- Production API is deployed from `main` via Render (`render.yaml`).
